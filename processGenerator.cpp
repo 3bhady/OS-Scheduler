@@ -57,43 +57,6 @@ int main() {
     // 3-use this function AFTER creating clock process to initialize clock, and initialize MsgQueue
     initClk();
 
-
-    //Reading processes data from processes.txt file
-    ifstream FIn("processes.txt");
-
-    while(getline(FIn,Line))
-    {
-        if(Line[0] != '#')  //Not commented line
-        {
-            vector<string> parameter;   //Vector contains the process parameters
-            string temp="";     //Stores the parameter
-            for(int i=0; i<Line.size(); i++)
-            {
-                if(Line[i] != '\t')     //Not tab character
-                {
-                    temp+= Line[i];
-                }
-                else {
-                    parameter.push_back(temp);
-                    temp="";
-                }
-            }
-            //Pushing process data into processData stuct and pushing the struct in the processes vector
-            parameter.push_back(temp);
-
-            processData PData;
-
-            PData.id=stringToInt(parameter[0]);
-            PData.arrivaltime=stringToInt(parameter[1]);
-            PData.runningtime=stringToInt(parameter[2]);
-            PData.priority=stringToInt(parameter[3]);
-
-            Process.push_back(PData);
-        }
-    }
-
-    FIn.close();
-
     //TODO:  Generation Main Loop
     //5-Send & Notify the information to  the scheduler at the appropriate time 
     //(only when a process arrives) so that it will be put it in its turn.
