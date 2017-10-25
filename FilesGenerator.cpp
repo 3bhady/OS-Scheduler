@@ -26,10 +26,10 @@ int main(int argc, char* argv[])
     for (int i = 1 ; i <= no ; i++){
     //generate Data Randomly
     //[min-max] = rand() % (max_number + 1 - minimum_number) + minimum_number
-      pData.id =i;
-      pData.arrivaltime+=rand() % (11); //processes arrives in order 
-      pData.runningtime=rand() % (30);
-      pData.priority=rand() % (10)+1;
+      pData.id = i;
+      pData.arrivaltime += rand() % (11); //processes arrives in order 
+      pData.runningtime = rand() % (30);
+      pData.priority = rand() % (10)+1;
       fprintf(pFile,"%d\t%d\t%d\t%d\n",pData.id,pData.arrivaltime,pData.runningtime,pData.priority);
     }
     fclose(pFile);

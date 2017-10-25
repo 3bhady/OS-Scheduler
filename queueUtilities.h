@@ -12,15 +12,17 @@
 
 #define QUEUEKEY 777
 #define ENDTYPE 19L
-
+#define NODATA -1
 ///==============================
 //don't mess with this variable//
 int qid;
 //===============================
 
 struct processData {
-   //TODO: add the process data details
-   int id;
+    int arrivaltime;
+    int priority;
+    int runningtime;
+    int id;
 };
 
 struct messagebuffer
@@ -67,11 +69,11 @@ int Recmsg( processData &pData) {
   msg.mtype = 1L;
   int ret=msgrcv(qid,&msg,sizeof(msg)-sizeof(long),0,IPC_NOWAIT);
   pData=msg.data;
-  if (ret == -1)
-    return -1;
+  if(ret == NODATA)
+    return 0;
   if(msg.mtype == ENDTYPE)
-      return  1;
-  return 0;
+      return -1;
+  return ret;   //Return number of bytes read
   
 }
 

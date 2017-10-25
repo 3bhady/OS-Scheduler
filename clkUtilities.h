@@ -37,6 +37,7 @@ Again, Remember that the clock is only emulation
 */
 void initClk()
 {
+
   int shmid = shmget(SHKEY, 4, 0444);
   while((int)shmid == -1)
   	{
