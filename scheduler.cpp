@@ -4,14 +4,13 @@
 using namespace std;
 
 int main(int argc, char* argv[]) {
+
     char SchAlgo;
     struct processData pD;      //Received data from the process generator
-    initQueue(false);
-    initClk();
 
-    cout << argc << endl;
-    string str = argv[0];
-    cout << str << endl;
+    initQueue(false);
+
+    initClk();
 
     //TODO: implement the scheduler :)
     int x = -1;
@@ -32,16 +31,6 @@ int main(int argc, char* argv[]) {
                     BytesNum = Recmsg(pD);
                 }
             }
-            //printf("current received data %d\n",pD.id);
-
-            // cout<<SchAlgo<<endl;
-            //===================================
-            //Preimplemented Functions examples
-            //cout<<" this is scheduler \n";
-            /////Toget time use the following function
-
-
-            //printf("current time is %d\n", x);
             x = getClk();
         }
     }
