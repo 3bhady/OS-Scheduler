@@ -15,6 +15,7 @@
 #define SHKEY 300
 
 
+
 ///==============================
 //don't mess with this variable//
 int* shmaddr;                  //

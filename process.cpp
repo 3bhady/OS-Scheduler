@@ -8,7 +8,7 @@ int remainingtime =0;
 int main(int agrc, char* argv[]) {
 
     //if you need to use the emulated clock uncomment the following line
-    //initClk();
+    initClk();
 
     //TODO: it needs to get the remaining time from somewhere
     //remainingtime = ??;

@@ -13,16 +13,18 @@
 #define QUEUEKEY 777
 #define ENDTYPE 19L
 #define NODATA -1
+
+
 ///==============================
 //don't mess with this variable//
 int qid;
 //===============================
 
 struct processData {
-    int arrivaltime;
-    int priority;
-    int runningtime;
-    int id;
+    int ArrivalTime;
+    int Priority;
+    int RunningTime;
+    int ID;
 };
 
 struct messagebuffer
