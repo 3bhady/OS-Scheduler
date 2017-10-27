@@ -61,6 +61,7 @@ int main(int argc, char* argv[])
             //pause();
             continue;
         }
+        scheduler->returnProcessToQueue(Process)
 
         scheduler->runProcess(Process);
 

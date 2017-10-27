@@ -24,7 +24,7 @@ int main() {
     vector<processData> Process;
 
     signal(SIGINT,clearResources);  //clear resources on sudden exit
-
+    void  schedulerResponse();
     initQueue(true);
 
     readProcesses(Process);     //read processes data from file
@@ -35,13 +35,14 @@ int main() {
     
     cout<<"Enter scheduling algorithm \n";
    // cin>>ScAlgo;
-    ScAlgo = HPF;
+    ScAlgo = SRTN;
     if(ScAlgo==HPF){
     //hpf algorithm
 
     }
     else if(ScAlgo==SRTN){
         //SRTN
+        cout<<"SRTN ALGO choosed in processGenerator \n";
     }
     else if(ScAlgo==RR){
         //RR
@@ -119,6 +120,9 @@ int main() {
             kill(SchedulerID,SIGCONT);  //wake scheduler as new processes added to the queue
             WakeScheduler=false;
         }
+
+        //TODO: respond to scheduler timer , wether scheduler needs to  be invoked at certain  times or no
+        schedulerResponse();
     }
 
     int status;
@@ -179,6 +183,7 @@ void readProcesses(vector<processData> &Process)
             PData.RunningTime=stringToInt(parameter[2]);
             PData.Priority=stringToInt(parameter[3]);
 
+
             Process.push_back(PData);
         }
     }
@@ -187,3 +192,7 @@ void readProcesses(vector<processData> &Process)
 
 
 
+void schedulerResponse()
+{
+
+}

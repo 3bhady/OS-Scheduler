@@ -46,6 +46,14 @@ public:
 
 	//handle process stat
 	virtual void  runProcess(const struct PCB & ProcessData){
+			if(ProcessData.Pid==-1)//first time we should fork :) 
+			{
+				ProcessData.Pid=fork();
+				execl("process.cpp",ProcessData.RunningTime,(char* )null);
 
+			}
+			else {//not first time to run the process
+
+			}
 	};
 };
