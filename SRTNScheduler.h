@@ -12,23 +12,26 @@ class SRTNScheduler : public Scheduler
 private: 
 	priority_queue<struct PCB, vector<struct PCB>, compareRunningTime> PQueue;
 public:
-	//constructor
-	SRTNScheduler(){};
+    static void  SRTNHandler(int Sig){}
+	//Constructor
+	SRTNScheduler(){
+        //TODO : set signal cont handler //
+        signal (SIGCONT,SRTNHandler);
+    };
 
-	//push received processes in the priority queue
+	//Push received processes in the priority queue
 	virtual void pushDataToQueue(const vector<struct processData> & PD)
 	{
 		for(int i = 0; i < PD.size();i++)
 		{
 			struct PCB TempPCB;
 			TempPCB.PD = PD[i];
-			TempPCB.Pid = -1;
 			TempPCB.RemainingTime = TempPCB.PD.RunningTime;
 			PQueue.push(TempPCB);
 		}
 	};
 
-	//get process with shortest remaining time
+	//Get process with shortest remaining time
 	virtual int getProcess(struct PCB & Process)
 	{
 		if(PQueue.size() == 0)
@@ -38,22 +41,35 @@ public:
 		return 1;
 	};
 
-	//Push process to the end of the queue
+    //Returns process to the end of the queue to wait for its turn to run again
 	virtual void returnProcessToQueue(const struct PCB & Process)
 	{
 		PQueue.push(Process);
 	};
 
 	//handle process stat
-	virtual void  runProcess(const struct PCB & ProcessData){
-			if(ProcessData.Pid==-1)//first time we should fork :) 
-			{
-				ProcessData.Pid=fork();
-				execl("process.cpp",ProcessData.RunningTime,(char* )null);
+	virtual void  runProcess( struct PCB & ProcessData) {
+        if (ProcessData.Pid == -1)//first time we should fork :)
+        {
+            ProcessData.Pid = fork();
+            if(ProcessData.Pid == 0)
+            {
+                //child .. we create process here
+                execl("process.out",to_string(ProcessData.RemainingTime).c_str(),(char  *) NULL);
+            }
 
-			}
-			else {//not first time to run the process
+        } else {//not first time to run the process
 
-			}
-	};
+        kill(ProcessData.Pid,SIGCONT);
+        }
+        int status;
+        //waitpid(Pid,&status,0);     //wait for process exit
+        cout<<" srtn sleep "<<endl;
+        pause();
+        cout<<" return to srtn"<<endl;
+        kill(ProcessData.Pid,SIGSTOP);
+
+    }
+
+
 };

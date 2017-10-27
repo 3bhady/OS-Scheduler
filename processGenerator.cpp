@@ -35,16 +35,18 @@ int main() {
     
     cout<<"Enter scheduling algorithm \n";
    // cin>>ScAlgo;
-    ScAlgo = SRTN;
-    if(ScAlgo==HPF){
-    //hpf algorithm
+
+    ScAlgo = HPF;
+
+    if(ScAlgo == HPF){
+
 
     }
-    else if(ScAlgo==SRTN){
+    else if(ScAlgo == SRTN){
         //SRTN
         cout<<"SRTN ALGO choosed in processGenerator \n";
     }
-    else if(ScAlgo==RR){
+    else if(ScAlgo == RR){
         //RR
         cout<<"Enter Quantum value \n";
         cin>>Quantum;
@@ -59,7 +61,7 @@ int main() {
         execl("clock.out","",(char  *) NULL);
     }
 
-    ClockID=pid;
+    ClockID = pid;
 
     pid=fork();
     if(pid==0)
@@ -97,9 +99,13 @@ int main() {
             if(x == Process[i].ArrivalTime)
             {
                 int result = Sendmsg(Process[i]);   //push process in message queue
-                if(ScAlgo==SRTN)
-                WakeScheduler = true;
 
+                if(ScAlgo == SRTN)
+                {
+
+                    WakeScheduler = true;
+                cout<<" another input to scheduler"<<endl;
+                }
                 if(result == -1) {    //returns -1 on failure;
                     printf("Failed to push process in message queue!\n");
                 }
@@ -113,13 +119,17 @@ int main() {
         if(Process.size() == 0)
         {
             lastSend();  //no more processes, send end of transmission message
-            kill(SchedulerID,SIGCONT);  //wake scheduler to receive end process
-            break;
+            //   kill(SchedulerID,SIGCONT);  //wake scheduler to receive end process
+          //  cout<<" to send last process"<<endl;
+
         }
-        else if(WakeScheduler){
+         if(WakeScheduler){
+
             kill(SchedulerID,SIGCONT);  //wake scheduler as new processes added to the queue
+             cout<<"waking up scheduler"<<endl;
             WakeScheduler=false;
         }
+        if(Process.size()==0)break;
 
         //TODO: respond to scheduler timer , wether scheduler needs to  be invoked at certain  times or no
         schedulerResponse();

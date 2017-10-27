@@ -3,9 +3,9 @@ build:
 	g++ scheduler.cpp -o sch.out
 	g++ FilesGenerator.cpp -o Files.out
 	g++ processGenerator.cpp -o main.out
-
+	g++ process.cpp	-o process.out
 clean:
-	rm -f *.out  processes.txt
+	#rm -f *.out  processes.txt
 	ipcrm -M 300
 	ipcrm -Q 777
 	@echo "All Items Cleared"

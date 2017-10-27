@@ -1,34 +1,35 @@
-
-#include<iostream>
-#include<string>
-#include "headers.h"
+#include <iostream>
+#include <string>
+#include <sstream>
 #include "clkUtilities.h"
+
 using namespace std;
 
-/* Modify this file as needed*/
-int remainingtime =0;
-int stringToInt(string str);//TODO : include scheduler utilities to use function string to int 
+int stringToInt(string str);//TODO : include scheduler utilities to use function string to int
 
-int main(int agrc, char* argv[]) {
-
-    //if you need to use the emulated clock uncomment the following line
+int main(int agrc, char* argv[])
+{
+    cout << "Entered process\n";
     initClk();
 
+    int x = getClk();
 
-    //TODO: it needs to get the remaining time from somewhere
-    //remainingtime = ??;
-    x=getClk();
+  	int remainingtime = stringToInt(argv[0]);   //remaining time passed as a parameter
 
-  	remainingtime=stringToInt(argv[0]);
-    while(remainingtime>0) {
-       while(x==getClk());
-       x=getClk();
-       remainingtime--;
+    while(remainingtime > 0)    //loop until process finishes executing
+    {
+        while(x == getClk());
+
+        x = getClk();
+
+        remainingtime--;
     }
-    //if you need to use the emulated clock uncomment the following line
+
     destroyClk(false);
+    cout << "Leaving process...\n";
     return 0;
 }
+
 int stringToInt(string str)
 {
     int x;
