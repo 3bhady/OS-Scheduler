@@ -46,15 +46,17 @@ public:
 	};
 
 	//Handle process stat
-	virtual void runProcess(struct PCB & ProcessData)
+	virtual void runProcess(const struct PCB & ProcessData)
 	{
         int Pid = fork();
 
         if(Pid == 0)
         {
             //child .. we create process here
-            execl("process.out",to_string(ProcessData.RemainingTime),(char  *) NULL);
+            execl("process.out",to_string(ProcessData.RemainingTime).c_str(),(char  *) NULL);
         }
+
+        cout << "Waiting process to exit\n";
 
         int status;
         waitpid(Pid,&status,0);     //wait for process exit

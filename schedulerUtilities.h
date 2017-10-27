@@ -13,8 +13,10 @@ struct PCB {
     int WaitingTime = 0;
     int Pid = -1;
 };
-//TODO : make getData return  -1 if it's the last process in the world
-void getData(int PrevClock,vector<struct processData>& PD)
+
+//Gets data from message queue and puts it in PD
+//returns -1 if last process is received
+int getData(int PrevClock,vector<struct processData>& PD)
 {
     if (PrevClock != getClk())  //Next clock?!
     {
@@ -25,16 +27,20 @@ void getData(int PrevClock,vector<struct processData>& PD)
         if (BytesNum == 0) {
             //   cout << "Nothing read!" << endl;
         }
-        else if (BytesNum == -1)
+        else if (BytesNum == -1) {
             cout << "End of processes!" << endl;
+            return -1;
+        }
         else {
             while (BytesNum != 0)   //Loop to get all arrived processes
             {
                 if (BytesNum == -1)
-                    cout << "End of processes!" << endl;
-                else
                 {
-                    cout << "process arrived at: "<<TempData.ArrivalTime << endl;
+                    cout << "End of processes!" << endl;
+                    return -1;
+                }
+                else {
+                    cout << "Process arrived at: " << TempData.ArrivalTime << endl;
                     PD.push_back(TempData);
                 }
                 BytesNum = Recmsg(TempData);
@@ -43,6 +49,7 @@ void getData(int PrevClock,vector<struct processData>& PD)
         }
         PrevClock = getClk();
     }
+    return 0;
 }
 
 int stringToInt(string str)

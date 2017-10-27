@@ -36,14 +36,14 @@ int main() {
     cout<<"Enter scheduling algorithm \n";
    // cin>>ScAlgo;
     ScAlgo = HPF;
-    if(ScAlgo==HPF){
+    if(ScAlgo == HPF){
     //hpf algorithm
 
     }
-    else if(ScAlgo==SRTN){
+    else if(ScAlgo == SRTN){
         //SRTN
     }
-    else if(ScAlgo==RR){
+    else if(ScAlgo == RR){
         //RR
         cout<<"Enter Quantum value \n";
         cin>>Quantum;

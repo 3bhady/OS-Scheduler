@@ -38,7 +38,7 @@ public:
 	};
 
 	//Handle process stat
-	virtual void runProcess(struct PCB & ProcessData)
+	virtual void runProcess(const struct PCB & ProcessData)
 	{
 		if(ProcessData.Pid == -1)
 		{
