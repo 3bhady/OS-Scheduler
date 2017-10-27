@@ -58,7 +58,7 @@ int main() {
         execl("clock.out","",(char  *) NULL);
     }
 
-    ClockID=pid;
+    ClockID = pid;
 
     pid=fork();
     if(pid==0)
@@ -96,8 +96,9 @@ int main() {
             if(x == Process[i].ArrivalTime)
             {
                 int result = Sendmsg(Process[i]);   //push process in message queue
-                if(ScAlgo==SRTN)
-                WakeScheduler = true;
+
+                if(ScAlgo == SRTN)
+                    WakeScheduler = true;
 
                 if(result == -1) {    //returns -1 on failure;
                     printf("Failed to push process in message queue!\n");

@@ -10,9 +10,10 @@ using namespace std;
 struct PCB {
     struct processData PD;
     int RemainingTime;
-    int Pid;
+    int WaitingTime = 0;
+    int Pid = -1;
 };
-
+//TODO : make getData return  -1 if it's the last process in the world
 void getData(int PrevClock,vector<struct processData>& PD)
 {
     if (PrevClock != getClk())  //Next clock?!

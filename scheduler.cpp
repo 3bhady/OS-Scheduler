@@ -37,6 +37,8 @@ int main(int argc, char* argv[])
 
     int Clock = -1;     //Initial clock time = -1
 
+    string state;       //Process state
+
     /*
      HPF -> scheduler  continue when it receives signal from process
      SRTN -> invoked when another process pushed in queue
@@ -57,15 +59,45 @@ int main(int argc, char* argv[])
 
         if(state == -1)     //If no processes in the scheduler queue block until a new process arrives
         {
+            //TODO: if end of process
             //kill(getppid(),WakeMeUpWhenItsAllOver);
             //pause();
             continue;
         }
 
+        Clock = getClk();    //clock at which process starts running
+
+        Process.WaitingTime += Clock - (Process.WaitingTime + Process.PD.RunningTime - Process.RemainingTime);
+
+        state = "resumed";  //Process status = started (if first time to run) or resumed
+        if(Process.Pid == -1)
+            state = "started";
+
+        scheduler->logProcessData(Clock,state,Process);
+
         scheduler->runProcess(Process);
 
-        pause();
+        int Stop = getClk();    //clock at which process finishes/stops running
 
+        Process.RemainingTime -= (Stop - Clock);  //subtract running time from the process remaining time
+
+        if (Process.RemainingTime == 0)     //process finished
+        {
+            state = "finished";
+
+            scheduler->logProcessData(Stop,state,Process);
+
+            int TA = Stop - Process.PD.ArrivalTime;    //Turn around
+            double WTA = (double)TA / Process.PD.RunningTime;   //Weighted turn around
+
+            cout << " TA " + TA + " WTA " + WTA << endl;
+        }
+        else
+        {
+            scheduler->logProcessData(Stop,state,Process);
+
+            scheduler->returnProcessToQueue(Process);
+        }
     }
     return 0;
 }

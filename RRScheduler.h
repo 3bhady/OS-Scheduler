@@ -16,7 +16,6 @@ public:
 		{
 			struct PCB TempPCB;
 			TempPCB.PD = PD[i];
-			TempPCB.Pid = -1;
 			TempPCB.RemainingTime = TempPCB.PD.RunningTime;
 			Queue.push(TempPCB);
 		}
@@ -32,14 +31,20 @@ public:
 		return 1;
 	};
 
-	//Push process to the end of the queue
+    //Returns process to the end of the queue to wait for its turn to run again
 	virtual void returnProcessToQueue(const struct PCB & Process)
 	{
 		Queue.push(Process);
 	};
 
 	//Handle process stat
-	virtual void  runProcess(const struct PCB & ProcessData){
+	virtual void runProcess(struct PCB & ProcessData)
+	{
+		if(ProcessData.Pid == -1)
+		{
 
+		}
+		//cout<<"process ran by HPFS\n";
+		//exit(1);
 	};
 };
