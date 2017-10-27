@@ -13,7 +13,6 @@ using namespace std;
 int main(int argc, char* argv[])
 {
     bool EndScheduler = false;
-    bool FirstProcessToRun = true;  //flag needed to make first process waiting time = 0
 
     string SchAlgo = argv[0];  //Scheduler algorithm passed to the process
 
@@ -74,14 +73,15 @@ int main(int argc, char* argv[])
 
         Clock = getClk();    //clock at which process starts running
 
-        if(FirstProcessToRun)
-            FirstProcessToRun = false;
-        else Process.WaitingTime += Clock - (Process.WaitingTime + Process.PD.RunningTime - Process.RemainingTime);
-
-
         if(Process.Pid == -1)   //Process status = started (if first time to run) or resumed
+        {
             status = "started";
-        else status = "resumed";
+            Process.WaitingTime = Clock - Process.PD.ArrivalTime;
+    	}
+        else {
+        	status = "resumed";
+        	Process.WaitingTime += Clock - (Process.WaitingTime + Process.PD.RunningTime - Process.RemainingTime);
+        }
 
         scheduler->logProcessData(Clock,status,Process);
 

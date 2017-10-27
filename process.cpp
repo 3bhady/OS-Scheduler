@@ -5,7 +5,7 @@
 
 using namespace std;
 
-int stringToInt(string str);//TODO : include scheduler utilities to use function string to int
+int stringToInt(string str);//TODO: include scheduler utilities to use function string to int
 
 int main(int agrc, char* argv[])
 {
