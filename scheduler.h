@@ -7,7 +7,8 @@ struct processData;
 class Scheduler
 {
 public:
-
+    int Size=-100;
+    static  bool NoMoreProcesses;
     //Push received processes in the queue
     virtual void pushDataToQueue(const vector<struct processData> & PD) = 0;
 
@@ -18,7 +19,7 @@ public:
     virtual void returnProcessToQueue(const struct PCB & Process) = 0;
 
     //Fork the process to run
-    virtual void runProcess(const struct PCB & ProcessData) = 0;
+    virtual int runProcess( struct PCB & ProcessData) = 0;
 
     //Log process info
     void logProcessData(int Clock, string state, const struct PCB & Process)
@@ -31,3 +32,4 @@ public:
             cout << endl;
     };
 };
+bool  Scheduler::NoMoreProcesses=false;

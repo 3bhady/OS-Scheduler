@@ -24,7 +24,7 @@ int main() {
     vector<processData> Process;
 
     signal(SIGINT,clearResources);  //clear resources on sudden exit
-
+    void  schedulerResponse();
     initQueue(true);
 
     readProcesses(Process);     //read processes data from file
@@ -35,13 +35,16 @@ int main() {
     
     cout<<"Enter scheduling algorithm \n";
    // cin>>ScAlgo;
-    ScAlgo = HPF;
+
+    ScAlgo = SRTN;
+
     if(ScAlgo == HPF){
-    //hpf algorithm
+
 
     }
     else if(ScAlgo == SRTN){
         //SRTN
+        cout<<"SRTN ALGO choosed in processGenerator \n";
     }
     else if(ScAlgo == RR){
         //RR
@@ -98,8 +101,11 @@ int main() {
                 int result = Sendmsg(Process[i]);   //push process in message queue
 
                 if(ScAlgo == SRTN)
-                    WakeScheduler = true;
+                {
 
+                    WakeScheduler = true;
+                cout<<" another input to scheduler"<<endl;
+                }
                 if(result == -1) {    //returns -1 on failure;
                     printf("Failed to push process in message queue!\n");
                 }
@@ -113,13 +119,20 @@ int main() {
         if(Process.size() == 0)
         {
             lastSend();  //no more processes, send end of transmission message
-            kill(SchedulerID,SIGCONT);  //wake scheduler to receive end process
-            break;
+            //   kill(SchedulerID,SIGCONT);  //wake scheduler to receive end process
+          //  cout<<" to send last process"<<endl;
+
         }
-        else if(WakeScheduler){
+         if(WakeScheduler){
+
             kill(SchedulerID,SIGCONT);  //wake scheduler as new processes added to the queue
+             cout<<"waking up scheduler"<<endl;
             WakeScheduler=false;
         }
+        if(Process.size()==0)break;
+
+        //TODO: respond to scheduler timer , wether scheduler needs to  be invoked at certain  times or no
+        schedulerResponse();
     }
 
     int status;
@@ -180,6 +193,7 @@ void readProcesses(vector<processData> &Process)
             PData.RunningTime=stringToInt(parameter[2]);
             PData.Priority=stringToInt(parameter[3]);
 
+
             Process.push_back(PData);
         }
     }
@@ -188,3 +202,7 @@ void readProcesses(vector<processData> &Process)
 
 
 
+void schedulerResponse()
+{
+
+}

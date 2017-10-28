@@ -46,7 +46,7 @@ public:
 	};
 
 	//Handle process stat
-	virtual void runProcess(const struct PCB & ProcessData)
+	virtual int runProcess( struct PCB & ProcessData)
 	{
         int Pid = fork();
 
