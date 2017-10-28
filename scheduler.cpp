@@ -18,20 +18,20 @@ int main(int argc, char* argv[])
 
     Scheduler* scheduler;    //Scheduler object
 
-     //Create scheduler according to scheduler algorithm
+    //Create scheduler according to scheduler algorithm
 
-        if(SchAlgo == HPF) {
-            scheduler = new HPFScheduler();
-            cout <<"Created HPFScheduler\n";
-        }
-        else if(SchAlgo == SRTN){
-            scheduler = new SRTNScheduler();
-            cout <<"Created SRTNScheduler\n";
-        }
-        else {
-            scheduler = new RRScheduler();
-            cout <<"Created RRScheduler\n";
-        }
+    if(SchAlgo == HPF) {
+        scheduler = new HPFScheduler();
+        cout <<"Created HPFScheduler\n";
+    }
+    else if(SchAlgo == SRTN){
+        scheduler = new SRTNScheduler();
+        cout <<"Created SRTNScheduler\n";
+    }
+    else {
+        scheduler = new RRScheduler();
+        cout <<"Created RRScheduler\n";
+    }
 
 
     initQueue(false);   //Subscribe to message queue
@@ -47,16 +47,17 @@ int main(int argc, char* argv[])
      SRTN -> invoked when another process pushed in queue
      RR -> invoked  every quantum
      */
-
+    int ProcessState=-1000;
     while (1)
     {
+cout<<"start "<<getClk()<<endl;
         vector<struct processData> PD;  //Vector of arrived processes
 
         int end = getData(Clock,PD);  //Get processes from message queue
 
         if (end == -1)  //If end process is received
             EndScheduler = true;
-
+        //  scheduler->NoMoreProcesses=EndScheduler;// needed in srtn  algorithm , being generalized in the other algorithms is not a crime
         scheduler->pushDataToQueue(PD);  //Push received processes in the priority queue
 
         struct PCB Process;
@@ -69,7 +70,6 @@ int main(int argc, char* argv[])
                 break;  //End scheduler
             continue;
         }
-        scheduler->returnProcessToQueue(Process);
 
         Clock = getClk();    //clock at which process starts running
 
@@ -77,21 +77,24 @@ int main(int argc, char* argv[])
         {
             status = "started";
             Process.WaitingTime = Clock - Process.PD.ArrivalTime;
-    	}
+        }
         else {
-        	status = "resumed";
-        	Process.WaitingTime += Clock - (Process.WaitingTime + Process.PD.RunningTime - Process.RemainingTime);
+            status = "resumed";
+            Process.WaitingTime += Clock - (Process.WaitingTime + Process.PD.RunningTime - Process.RemainingTime);
+        }
+        if(ProcessState!=LASTPROCESS)
+        {
+        cout<<"clock ()() "<<Clock<<endl;
+            scheduler->logProcessData(Clock,status,Process);
         }
 
-        scheduler->logProcessData(Clock,status,Process);
-
-        scheduler->runProcess(Process);
-
+         ProcessState=scheduler->runProcess(Process);
+//cout<<"after run process"<<endl;
         int Stop = getClk();    //clock at which process finishes/stops running
 
         Process.RemainingTime -= (Stop - Clock);  //subtract running time from the process remaining time
-
-        if (Process.RemainingTime == 0)     //process finished
+        cout<<" process remaining time "<<Process.RemainingTime<<endl;
+        if (Process.RemainingTime <= 0)     //process finished
         {
             status = "finished";
 
@@ -101,13 +104,19 @@ int main(int argc, char* argv[])
             double WTA = (double)TA / Process.PD.RunningTime;   //Weighted turn around
 
             cout << " TA " << TA << " WTA " << setprecision(2) << fixed << WTA << endl;
+            cout<<" queue size " <<scheduler->Size<<endl;
         }
         else
-        {
+        {   if(ProcessState!=LASTPROCESS)
+            {
+            cout<<"down :";
             scheduler->logProcessData(Stop,status,Process);
-
+            }
             scheduler->returnProcessToQueue(Process);
+            cout<<"process pushed back \n";
         }
+        //  while(Stop==getClk()){};
+
     }
     cout << "Scheduler exiting...\n";
     return 0;

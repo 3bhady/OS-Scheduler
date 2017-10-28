@@ -36,7 +36,7 @@ int main() {
     cout<<"Enter scheduling algorithm \n";
    // cin>>ScAlgo;
 
-    ScAlgo = HPF;
+    ScAlgo = SRTN;
 
     if(ScAlgo == HPF){
 
