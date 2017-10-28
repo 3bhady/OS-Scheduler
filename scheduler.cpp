@@ -78,7 +78,7 @@ cout<<"start "<<getClk()<<endl;
             status = "started";
             Process.WaitingTime = Clock - Process.PD.ArrivalTime;
         }
-        else {
+        else if(ProcessState!=LASTPROCESS){
             status = "resumed";
             Process.WaitingTime += Clock - (Process.WaitingTime + Process.PD.RunningTime - Process.RemainingTime);
         }
@@ -107,10 +107,10 @@ cout<<"start "<<getClk()<<endl;
             cout<<" queue size " <<scheduler->Size<<endl;
         }
         else
-        {   if(ProcessState!=LASTPROCESS)
-            {
+        {   if(ProcessState!=-10)
+            {cout<<" process State "<<ProcessState<<endl;
             cout<<"down :";
-            scheduler->logProcessData(Stop,status,Process);
+            scheduler->logProcessData(Stop,"stopped",Process);
             }
             scheduler->returnProcessToQueue(Process);
             cout<<"process pushed back \n";
