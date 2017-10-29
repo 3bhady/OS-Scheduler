@@ -50,14 +50,15 @@ int main(int argc, char* argv[])
     int ProcessState=-1000;
     while (1)
     {
-cout<<"start "<<getClk()<<endl;
+        cout<<"Scheduler Clock "<<getClk()<<endl;
         vector<struct processData> PD;  //Vector of arrived processes
 
         int end = getData(Clock,PD);  //Get processes from message queue
-
         if (end == -1)  //If end process is received
             EndScheduler = true;
-        //  scheduler->NoMoreProcesses=EndScheduler;// needed in srtn  algorithm , being generalized in the other algorithms is not a crime
+        if(PD.size()!=0)
+            cout<<"count me"<<endl;
+        //this must be before checking for state or otherwise the code will break
         scheduler->pushDataToQueue(PD);  //Push received processes in the priority queue
 
         struct PCB Process;
@@ -68,6 +69,12 @@ cout<<"start "<<getClk()<<endl;
         {
             if (EndScheduler == true)
                 break;  //End scheduler
+            cout<<"no processes in the queue nothing to be ran"<<endl;
+            kill(getppid(),SIGIO);
+            cout<<"Scheduler: waiting because no processes are available"<<endl;
+            pause();
+
+            //cout<<"Schduler: done waiting because either a process has arrived or something went wrong, if no process arrived check the signals"<<endl;
             continue;
         }
 
@@ -84,16 +91,27 @@ cout<<"start "<<getClk()<<endl;
         }
         if(ProcessState!=LASTPROCESS)
         {
-        cout<<"clock ()() "<<Clock<<endl;
+            //cout<<"clock ()() "<<Clock<<endl;
             scheduler->logProcessData(Clock,status,Process);
         }
 
          ProcessState=scheduler->runProcess(Process);
+        PD.clear();
+       //----------------experimental
+         end = getData(Clock,PD);  //Get processes from message queue
+
+        if (end == -1)  //If end process is received
+            EndScheduler = true;
+        scheduler->pushDataToQueue(PD);  //Push received processes in the priority queue
+        //----------------experimental
+
+
+
 //cout<<"after run process"<<endl;
         int Stop = getClk();    //clock at which process finishes/stops running
 
         Process.RemainingTime -= (Stop - Clock);  //subtract running time from the process remaining time
-        cout<<" process remaining time "<<Process.RemainingTime<<endl;
+        //cout<<" process remaining time "<<Process.RemainingTime<<endl;
         if (Process.RemainingTime <= 0)     //process finished
         {
             status = "finished";
@@ -108,12 +126,13 @@ cout<<"start "<<getClk()<<endl;
         }
         else
         {   if(ProcessState!=-10)
-            {cout<<" process State "<<ProcessState<<endl;
+            {
             cout<<"down :";
             scheduler->logProcessData(Stop,"stopped",Process);
             }
+
             scheduler->returnProcessToQueue(Process);
-            cout<<"process pushed back \n";
+
         }
         //  while(Stop==getClk()){};
 

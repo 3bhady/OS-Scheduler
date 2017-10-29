@@ -12,7 +12,10 @@ using namespace std;
 int stringToInt(string str);
 void clearResources(int);
 void readProcesses(vector<processData> &Process);
-
+void quantumWake(int sig);
+void newProcessWake(int sig);
+int QuantumStart=-1;
+bool WakeOnNewProcess=false;
 int main() {
 
      // variables
@@ -21,6 +24,7 @@ int main() {
     int pid;
     int SchedulerID;
     int ClockID;
+
     vector<processData> Process;
 
     signal(SIGINT,clearResources);  //clear resources on sudden exit
@@ -29,15 +33,16 @@ int main() {
 
     readProcesses(Process);     //read processes data from file
 
-
+    cout<<"start"<<endl;
     //TODO: 
     //Ask the user about the chosen scheduling Algorithm and its parameters if exists.
     
     cout<<"Enter scheduling algorithm \n";
-   // cin>>ScAlgo;
+    cin>>ScAlgo;
 
-    ScAlgo = SRTN;
-
+  //  ScAlgo = SRTN;
+    signal(SIGALRM,quantumWake);
+    signal(SIGIO,newProcessWake);
     if(ScAlgo == HPF){
 
 
@@ -50,6 +55,7 @@ int main() {
         //RR
         cout<<"Enter Quantum value \n";
         cin>>Quantum;
+
     }
 
 
@@ -79,11 +85,16 @@ int main() {
     //TODO:  Generation Main Loop
     //Send & Notify the information to  the scheduler at the appropriate time
     //(only when a process arrives) so that it will be put it in its turn.
-
+    int x;
     while(1){
 
-        int x = getClk();    //to get time
+        x = getClk();    //to get time
        // printf("current time is %d\n",x);
+        if( (x-QuantumStart) == Quantum && QuantumStart !=-1)
+        {
+            kill(SchedulerID,SIGCONT);  //wake scheduler as new processes added to the queue
+            QuantumStart=-1;
+        }
 
         //no processes in the file, send end of transmission message
         if(Process.size() == 0)
@@ -123,20 +134,46 @@ int main() {
           //  cout<<" to send last process"<<endl;
 
         }
-         if(WakeScheduler){
 
-            kill(SchedulerID,SIGCONT);  //wake scheduler as new processes added to the queue
-             cout<<"waking up scheduler"<<endl;
-            WakeScheduler=false;
+
+        if(!queueIsEmpty()) {
+            if (WakeOnNewProcess) {
+                WakeOnNewProcess = false;
+
+                kill(SchedulerID, SIGCONT);  //wake scheduler as new processes added to the queue
+                cout << "waking up scheduler by request from the shceduler" << endl;
+                WakeScheduler = false;
+            }
         }
+
         if(Process.size()==0)break;
 
         //TODO: respond to scheduler timer , wether scheduler needs to  be invoked at certain  times or no
-        schedulerResponse();
+        //schedulerResponse();
     }
 
+
+
+
     int status;
-    waitpid(SchedulerID,&status,0);     //wait for scheduler exit
+    waitpid(SchedulerID,&status,WNOHANG);     //wait for scheduler exit
+    while(!WIFEXITED(status))
+    {
+        waitpid(SchedulerID,&status,WNOHANG);     //wait for scheduler exit
+        if(WIFEXITED(status))
+        {
+            break;
+        }
+
+        if( ((x-QuantumStart) == Quantum )&& QuantumStart !=-1)
+        {
+
+            kill(SchedulerID,SIGCONT);  //wake scheduler as new processes added to the queue
+            cout<<"please wake up this is the morning call"<<endl;
+            QuantumStart=-1;
+        }
+        x=getClk();
+    }
     cout<<"Exit status is: "<<status<<endl;
 
     clearResources(0);   //to clear all resources
@@ -200,8 +237,14 @@ void readProcesses(vector<processData> &Process)
     FIn.close();
 }
 
-
-
+void quantumWake(int sig){
+    cout<<"Call to Quantum Wake in process generator has been made"<<endl;
+    QuantumStart=getClk();
+}
+void newProcessWake(int sig){
+    cout<<"Call to wake on new process in process generator has been made"<<endl;
+    WakeOnNewProcess=true;
+}
 void schedulerResponse()
 {
 

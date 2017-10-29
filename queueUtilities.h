@@ -34,7 +34,16 @@ struct messagebuffer
  
 };
 
+bool queueIsEmpty()
+{
+    struct messagebuffer msg;
+    msg.mtype = 0L;
+    int ret=msgrcv(qid,&msg,sizeof(msg)-sizeof(long),0,IPC_NOWAIT|MSG_COPY);
+    if(ret==NODATA)
+        return true;
+    return false;
 
+}
 void initQueue(bool flag) {
   if(flag) {
     qid= msgget(QUEUEKEY,IPC_CREAT  |   0644);

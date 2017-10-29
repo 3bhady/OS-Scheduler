@@ -58,6 +58,10 @@ public:
 	//Push received processes in the priority queue
 	virtual void pushDataToQueue(const vector<struct processData> & PD)
 	{
+        if(PD.size()!=0)
+        {
+            kill(getppid(),SIGIO); // send a wake me up when something new comes
+        }
 		for(int i = 0; i < PD.size();i++)
 		{
 			struct PCB TempPCB;

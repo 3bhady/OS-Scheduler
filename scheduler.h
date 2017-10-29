@@ -1,7 +1,7 @@
 #pragma once
 #include <queue>
 #include "schedulerUtilities.h"
-
+#include <string>
 struct processData;
 
 class Scheduler

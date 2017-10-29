@@ -13,7 +13,14 @@ private:
 	priority_queue<struct PCB, vector<struct PCB>, comparePriority> PQueue;
 public:
 	//Constructor
-	HPFScheduler(){};
+	HPFScheduler(){
+
+		signal(SIGCONT,contSig);
+	};
+	static void contSig(int Sig)
+	{
+		//signal(SIGCHLD,RRHandler);
+	}
 
 	//Push received processes in the priority queue
 	virtual void pushDataToQueue(const vector<struct processData> & PD)
@@ -52,6 +59,7 @@ public:
 
         if(Pid == 0)
         {
+			cout<<"p ran"<<endl;
             //child .. we create process here
             execl("process.out",to_string(ProcessData.RemainingTime).c_str(),(char  *) NULL);
         }
@@ -60,5 +68,6 @@ public:
 
         int status;
         waitpid(Pid,&status,0);     //wait for process exit
+		kill(getppid(),SIGIO);
 	};
 };

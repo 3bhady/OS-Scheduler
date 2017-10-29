@@ -18,8 +18,8 @@ struct PCB {
 //returns -1 if last process is received
 int getData(int PrevClock,vector<struct processData>& PD)
 {
-    if (PrevClock != getClk())  //Next clock?!
-    {
+   // if (PrevClock != getClk())  //Next clock?!
+    //{
         struct processData TempData;  //Received data from the process generator
 
         int BytesNum = Recmsg(TempData);
@@ -48,7 +48,7 @@ int getData(int PrevClock,vector<struct processData>& PD)
 
         }
         PrevClock = getClk();
-    }
+  //  }
     return 0;
 }
 
