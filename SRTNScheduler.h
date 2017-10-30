@@ -35,6 +35,7 @@ public:
                 else if(WIFCONTINUED(status)){
 
                     cout<<"in SIGCHLD handler \n";
+                   if(paused)
                     pause();
 
                 }
@@ -109,9 +110,12 @@ public:
         //waitpid(Pid,&status,0);     //wait for process exit
         cout<<" srtn sleep "<<endl;
         cout<<" current process remaining time : "<<ProcessData.RemainingTime<<endl;
-        if( !(NoMoreProcesses&&ProcessData.RemainingTime<=1&&PQueue.size()==0))
+        paused=true;
+       // if( !(NoMoreProcesses&&ProcessData.RemainingTime<=1&&PQueue.size()==0))
+
         pause();
-        else cout<<" finished everything in srtn scheduler \n";
+        paused=false;
+       // else cout<<" finished everything in srtn scheduler \n";
         cout<<" return to srtn"<<endl;
 
         kill(ProcessData.Pid,SIGSTOP);

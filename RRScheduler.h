@@ -3,19 +3,29 @@
 
 class RRScheduler: public Scheduler
 {
-private: 
+private:
+
 	queue<struct PCB> Queue;
-    int Lprocess=-100;
+
+	static bool ReceivedContUselessSig;
 public:
 	static void IgnoreSIGCHLD(int Sig)
 	{
 		signal(SIGCHLD,RRHandler);
-		if(Sig==SIGCONT)
-		{
-			cout<<"RRScheduler: in sig cont handler \n";
 
-			pause();
-		}
+         int status;
+            int p;
+            p=waitpid(-1, &status, 0);
+            if(p!=-1)
+            {   if(WIFCONTINUED(status)){
+
+                    cout<<"RRScheduler: in SIGCHLD handler \n";
+//                    if(paused)
+                    pause();
+
+                }
+
+            }
 
 	}
 	static void  RRHandler(int Sig){
@@ -29,10 +39,19 @@ public:
 			int p;
 			p=waitpid(-1, &status, WNOHANG);
 			if(p!=-1)
-			{   if (WIFEXITED(status)){
+			{
 
 
-					cout<<"RRScheduler: child handler , child is dead"<<endl;
+                if (WIFEXITED(status)){
+                  if(WEXITSTATUS(status)==Lprocess)
+                      cout<<"RRScheduler: child handler , child is dead"<<endl;
+                    else {
+                      if(paused)
+                          pause();
+                  }
+
+
+
 
 
 					// pause();
@@ -40,8 +59,8 @@ public:
 				else if(WIFCONTINUED(status)){
 
 					cout<<"RRScheduler: in SIGCHLD handler \n";
-
-					pause();
+                    if(paused)
+                        pause();
 
 				}
 					else if(WCOREDUMP(status))
@@ -112,6 +131,7 @@ public:
 	//Handle process stat
 
     virtual int  runProcess( struct PCB & ProcessData) {
+
         if (ProcessData.Pid == -1)//first time we should fork :)
         {
             ProcessData.Pid = fork();
@@ -135,23 +155,41 @@ public:
 
 			//--------------send alarm to the process manager for scheduled wake up
             kill(getppid(),SIGALRM);
-			signal(SIGCHLD,IgnoreSIGCHLD);
+
             cout<<"RRScheduler: RR sleep "<<endl;
-            pause();
+		//if(ReceivedContUselessSig) {
+
+        //signal(SIGCHLD,IgnoreSIGCHLD);
+int to_return;
+        if(Lprocess!=ProcessData.Pid)
+        {
+            to_return=0;
+        }else {
+            to_return=-10;
+        }
+
+
+                    paused=true;
+					pause();
+                    paused=false;
+
+
+		//	ReceivedContUselessSig=false;
+	//	}
 			//--------------
         cout<<"RRScheduler: return to rr"<<endl;
 
 
         kill(ProcessData.Pid,SIGSTOP);
-        if(Lprocess!=ProcessData.Pid)
+       /* if(Lprocess!=ProcessData.Pid)
         {
             //not the last chosen process
             Lprocess=ProcessData.Pid;
             return 0;
 
 
-        }
-        return -10;
+        }*/
+        return to_return;
 
 
     }
