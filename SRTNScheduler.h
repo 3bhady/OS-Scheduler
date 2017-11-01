@@ -27,8 +27,12 @@ public:
             {   if (WIFEXITED(status)){
 
 
-                cout<<"child handler , child is dead"<<endl;
-
+                    if(WEXITSTATUS(status)==53)
+                        cout<<"RRScheduler: child handler , child is dead"<<endl;
+                    else {
+                        if(paused)
+                            pause();
+                    }
 
                // pause();
                 }

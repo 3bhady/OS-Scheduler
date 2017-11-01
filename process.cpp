@@ -43,7 +43,7 @@ int main(int agrc, char* argv[])
     destroyClk(false);
 
 
-    return getpid();
+    return 53;
 }
 
 int stringToInt(string str)

@@ -43,7 +43,8 @@ public:
 
 
                 if (WIFEXITED(status)){
-                  if(WEXITSTATUS(status)==Lprocess)
+                    cout<<" exit code for child :"<<WEXITSTATUS(status)<<endl;
+                  if(WEXITSTATUS(status)==53)
                       cout<<"RRScheduler: child handler , child is dead"<<endl;
                     else {
                       if(paused)
