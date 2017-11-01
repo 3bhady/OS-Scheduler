@@ -36,28 +36,23 @@ int main() {
     cout<<"start"<<endl;
     //TODO: 
     //Ask the user about the chosen scheduling Algorithm and its parameters if exists.
-    
-    cout<<"Enter scheduling algorithm \n";
+
+    cout<<"Enter scheduling algorithm \n"
+            "1-HPF\n"
+            "2-SRTN\n"
+            "3-RR\n";
     cin>>ScAlgo;
 
-  //  ScAlgo = SRTN;
+    //  ScAlgo = SRTN;
     signal(SIGALRM,quantumWake);
     signal(SIGIO,newProcessWake);
-    if(ScAlgo == HPF){
-
-
-    }
-    else if(ScAlgo == SRTN){
-        //SRTN
-        cout<<"SRTN ALGO choosed in processGenerator \n";
-    }
-    else if(ScAlgo == RR){
+    if(ScAlgo == RR){
         //RR
         cout<<"Enter Quantum value \n";
         cin>>Quantum;
-
+        if(Quantum<1)
+            cout<<"enter a valid quantum msh gayen nharag hena"<<endl;
     }
-
 
     //Initiate and create Scheduler and Clock processes.
     pid=fork();

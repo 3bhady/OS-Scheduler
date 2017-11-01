@@ -79,7 +79,7 @@ public:
 					cout<<"///////////RRScheduler: some fucker stopped me"<< WSTOPSIG(status)<<endl;
 				}
 				else{
-					cout<<"***************RRScheduler: unkown signal : "<<(status<<8)<<" \n";
+					cout<<"***************RRScheduler: unknown signal : "<<(status<<8)<<" \n";
 				}
 
 
@@ -161,7 +161,7 @@ public:
 		//if(ReceivedContUselessSig) {
 
         //signal(SIGCHLD,IgnoreSIGCHLD);
-int to_return;
+        int to_return;
         if(Lprocess!=ProcessData.Pid)
         {
             to_return=0;

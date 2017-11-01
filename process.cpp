@@ -26,7 +26,7 @@ int main(int agrc, char* argv[])
     {
     //cout<<" before waiting \n";
 
-
+        usleep(100);
         while(x == getClk());
         //cout<<" x = "<<x<<endl;
         cout<<"Process: my id is:"<<getpid()<<" call me"<<endl;
