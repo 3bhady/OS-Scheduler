@@ -9,12 +9,21 @@ int stringToInt(string str);//TODO: include scheduler utilities to use function 
 void handlerKILLED(int);
 void handlerStop(int);
 void handlerCont(int);
+void Ign(int);
 int main(int agrc, char* argv[])
 {
+    //abort();
      signal(SIGCONT,handlerCont);
     signal(SIGSTOP,handlerStop);
     signal(SIGKILL,handlerKILLED);
     signal(SIGINT,handlerKILLED);
+    signal(SIGTTOU,Ign);
+    signal(SIGTTIN,Ign);
+    signal(SIGRTMIN,Ign);
+    signal(32,Ign);
+    signal(96,Ign);
+    signal(SIGUSR1,Ign);
+   // signal(SIGCONT,Ign);
 
     cout << "Process: Entered process\n";
     initClk();
@@ -56,14 +65,19 @@ int stringToInt(string str)
 }
 void handlerKILLED(int sig )
 {
-
+cout<<"burned meeeeeeeeeeeeeeeeeeeeeeee"<<endl;
 }
 void handlerCont(int sig){
-x=getClk();
+    x=getClk();
     cout<<"Process: handler continue\n";
 }
 void handlerStop(int sig )
 {
     cout<<"Process: Stopped \n";
     pause();
+}
+
+void Ign(int)
+{
+   // cout<<"^^^^^^^^^^^^^^^^^^^^^"<<endl;
 }

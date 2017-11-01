@@ -130,7 +130,7 @@ int main(int argc, char* argv[])
             cout<<"down :";
             scheduler->logProcessData(Stop,"stopped",Process);
             }
-
+            if(ProcessState==0)
             scheduler->returnProcessToQueue(Process);
 
         }

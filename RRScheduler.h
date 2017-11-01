@@ -9,6 +9,7 @@ private:
 
 	static bool ReceivedContUselessSig;
 public:
+
 	static void IgnoreSIGCHLD(int Sig)
 	{
 		signal(SIGCHLD,RRHandler);
@@ -44,8 +45,10 @@ public:
 
                 if (WIFEXITED(status)){
                     cout<<" exit code for child :"<<WEXITSTATUS(status)<<endl;
-                  if(WEXITSTATUS(status)==53)
-                      cout<<"RRScheduler: child handler , child is dead"<<endl;
+                  if(WEXITSTATUS(status)==53) {
+                      cout << "RRScheduler: child handler , child is dead" << endl;
+                      ChildDead=true;
+                  }
                     else {
                       if(paused)
                           pause();
@@ -64,15 +67,12 @@ public:
                         pause();
 
 				}
-					else if(WCOREDUMP(status))
-				{
-					cout<<"++++++++++++++RRScheduler: core dump from child: "<<(status>>8)<<" \n";
-
-
-				}
 				else if(WIFSIGNALED(status)) {
-					cout<<"-------------RRScheduler: some motherfucker signaled my child to death: "<<(status>>8)<<" \n";
-					cout<<"the fucking signal that stopped my child is: "<<WSTOPSIG(status)<<endl;
+					cout<<"-------------RRScheduler:signal stopped child: "<<WTERMSIG(status)<<endl;
+					if(WCOREDUMP(status))
+					{
+						cout<<"++++++++++++++RRScheduler: core dump from child\n";
+					}
 				}
 				else if(WIFSTOPPED(status))
 				{
@@ -150,7 +150,7 @@ public:
             cout<<"RRScheduler: running process "<<ProcessData.Pid<<endl;
         }
         int status;
-
+        ChildDead=false;
 
         cout<<"RRScheduler: current process remaining time : "<<ProcessData.RemainingTime<<endl;
 
@@ -164,7 +164,7 @@ public:
         int to_return;
         if(Lprocess!=ProcessData.Pid)
         {
-            to_return=0;
+            to_return=ChildDead;
         }else {
             to_return=-10;
         }

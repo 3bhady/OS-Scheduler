@@ -10,6 +10,7 @@ public:
     int Size=-100;
     static bool paused;
     static int Lprocess;
+    static bool ChildDead;
     static  bool NoMoreProcesses;
     //Push received processes in the queue
     virtual void pushDataToQueue(const vector<struct processData> & PD) = 0;
@@ -37,3 +38,4 @@ public:
 bool  Scheduler::NoMoreProcesses=false;
 bool Scheduler::paused=false;
 int Scheduler::Lprocess=-100;
+bool Scheduler::ChildDead=false;
