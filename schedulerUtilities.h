@@ -12,6 +12,7 @@ struct PCB {
     int RemainingTime;
     int WaitingTime = 0;
     int Pid = -1;
+    int LastRunTime;
 };
 
 //Gets data from message queue and puts it in PD

@@ -9,7 +9,6 @@ private:
 
 	static bool ReceivedContUselessSig;
 public:
-
 	static void IgnoreSIGCHLD(int Sig)
 	{
 		signal(SIGCHLD,RRHandler);
@@ -31,6 +30,11 @@ public:
 	}
 	static void  RRHandler(int Sig){
 		cout<<"RRScheduler: signal : "<<Sig<<endl;
+		if (Sig==SIGILL)
+		{
+			cout << "RRScheduler: child handler , child is dead" << endl;
+			ChildDead=true;
+		}
 		if(Sig==SIGCONT)
 		{
 			cout<<"RRScheduler: in sig cont handler \n";
@@ -96,7 +100,8 @@ public:
 	RRScheduler(){
 		//TODO : set signal cont handler //
 		signal (SIGCONT,RRHandler);
-		signal (SIGCHLD,RRHandler);
+		signal (SIGCHLD,SIG_IGN);
+		signal (SIGILL,RRHandler);
 	};
 
 
@@ -132,7 +137,7 @@ public:
 	//Handle process stat
 
     virtual int  runProcess( struct PCB & ProcessData) {
-
+		ChildDead=false;
         if (ProcessData.Pid == -1)//first time we should fork :)
         {
             ProcessData.Pid = fork();
@@ -150,7 +155,7 @@ public:
             cout<<"RRScheduler: running process "<<ProcessData.Pid<<endl;
         }
         int status;
-        ChildDead=false;
+
 
         cout<<"RRScheduler: current process remaining time : "<<ProcessData.RemainingTime<<endl;
 
@@ -161,13 +166,7 @@ public:
 		//if(ReceivedContUselessSig) {
 
         //signal(SIGCHLD,IgnoreSIGCHLD);
-        int to_return;
-        if(Lprocess!=ProcessData.Pid)
-        {
-            to_return=ChildDead;
-        }else {
-            to_return=-10;
-        }
+
 
 
                     paused=true;
@@ -190,7 +189,7 @@ public:
 
 
         }*/
-        return to_return;
+        return ChildDead;
 
 
     }

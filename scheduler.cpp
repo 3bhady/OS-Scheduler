@@ -7,13 +7,19 @@
 #include <string>
 #include <iomanip>
 #include "defs.h"
+#include <fstream>
+#include <math.h>
 
 using namespace std;
 
 int main(int argc, char* argv[])
 {
+	ofstream file;
     bool EndScheduler = false;
-
+    remove( "scheduler.log" );
+    int CPUUtilizationClocks = 0, ProcessesCount;
+    double TotalWaiting = 0, TotalWTA = 0;
+    vector<double> WTAs;
     string SchAlgo = argv[0];  //Scheduler algorithm passed to the process
 
     Scheduler* scheduler;    //Scheduler object
@@ -47,7 +53,7 @@ int main(int argc, char* argv[])
      SRTN -> invoked when another process pushed in queue
      RR -> invoked  every quantum
      */
-    int ProcessState=-1000;
+    bool ProcessState=false;
     while (1)
     {
         cout<<"Scheduler Clock "<<getClk()<<endl;
@@ -55,7 +61,10 @@ int main(int argc, char* argv[])
 
         int end = getData(Clock,PD);  //Get processes from message queue
         if (end == -1)  //If end process is received
+        {
             EndScheduler = true;
+            ProcessesCount = PD[PD.size()-1].ID;
+        }
         if(PD.size()!=0)
             cout<<"count me"<<endl;
         //this must be before checking for state or otherwise the code will break
@@ -69,10 +78,12 @@ int main(int argc, char* argv[])
         {
             if (EndScheduler == true)
                 break;  //End scheduler
-            cout<<"no processes in the queue nothing to be ran"<<endl;
+            cout<<"no processes in the queue nothing to be run\n";
             kill(getppid(),SIGIO);
-            cout<<"Scheduler: waiting because no processes are available"<<endl;
+            cout<<"Scheduler: waiting because no processes are available\n";
+            int Temp = getClk();
             pause();
+            CPUUtilizationClocks += getClk() - Temp;
 
             //cout<<"Schduler: done waiting because either a process has arrived or something went wrong, if no process arrived check the signals"<<endl;
             continue;
@@ -80,28 +91,35 @@ int main(int argc, char* argv[])
 
         Clock = getClk();    //clock at which process starts running
 
-        if(Process.Pid == -1)   //Process status = started (if first time to run) or resumed
+        if(Process.Pid == -1)   //Process status = started (if first time to run)
         {
             status = "started";
-            Process.WaitingTime = Clock - Process.PD.ArrivalTime;
+            Process.LastRunTime = Process.PD.ArrivalTime;
         }
-        else if(ProcessState!=LASTPROCESS){
+        else {
             status = "resumed";
-            Process.WaitingTime += Clock - (Process.WaitingTime + Process.PD.RunningTime - Process.RemainingTime);
-        }
-        if(ProcessState!=LASTPROCESS)
-        {
-            //cout<<"clock ()() "<<Clock<<endl;
-            scheduler->logProcessData(Clock,status,Process);
         }
 
+        Process.WaitingTime += Clock - Process.LastRunTime;
+
+       // if(ProcessState!=LASTPROCESS)
+        //{
+            //cout<<"clock ()() "<<Clock<<endl;
+
+            scheduler->logProcessData(Clock,status,Process);
+        //}
+
          ProcessState=scheduler->runProcess(Process);
+
         PD.clear();
        //----------------experimental
          end = getData(Clock,PD);  //Get processes from message queue
 
         if (end == -1)  //If end process is received
+        {
             EndScheduler = true;
+            ProcessesCount = PD[PD.size()-1].ID;
+        }
         scheduler->pushDataToQueue(PD);  //Push received processes in the priority queue
         //----------------experimental
 
@@ -109,10 +127,10 @@ int main(int argc, char* argv[])
 
 //cout<<"after run process"<<endl;
         int Stop = getClk();    //clock at which process finishes/stops running
-
+        Process.LastRunTime = Stop;
         Process.RemainingTime -= (Stop - Clock);  //subtract running time from the process remaining time
         //cout<<" process remaining time "<<Process.RemainingTime<<endl;
-        if (Process.RemainingTime <= 0)     //process finished
+        if (ProcessState)     //process finished
         {
             status = "finished";
 
@@ -121,22 +139,41 @@ int main(int argc, char* argv[])
             int TA = Stop - Process.PD.ArrivalTime;    //Turn around
             double WTA = (double)TA / Process.PD.RunningTime;   //Weighted turn around
 
+            TotalWaiting += Process.WaitingTime;
+            TotalWTA += WTA;
+            WTAs.push_back(WTA);
+
             cout << " TA " << TA << " WTA " << setprecision(2) << fixed << WTA << endl;
-            cout<<" queue size " <<scheduler->Size<<endl;
+            file.open("scheduler.log",fstream::out | fstream::app);
+            file<<" TA " << TA << " WTA " << setprecision(2) << fixed << WTA << "\n";
+            file.close();
         }
         else
-        {   if(ProcessState!=-10)
-            {
-            cout<<"down :";
-            scheduler->logProcessData(Stop,"stopped",Process);
-            }
-            if(ProcessState==0)
-            scheduler->returnProcessToQueue(Process);
+        {
+                scheduler->logProcessData(Stop,"stopped",Process);
+                scheduler->returnProcessToQueue(Process);
 
         }
         //  while(Stop==getClk()){};
 
     }
+
+    //Calculating scheduler.perf  variables
+    double StdWTA = 0, AvgWTA = (double)TotalWTA/ProcessesCount;
+
+    for(int i = 0; i < WTAs.size(); i++)
+        StdWTA += fabs( AvgWTA - WTAs[i]);
+
+    file.open("scheduler.perf",fstream::out);
+
+    file <<"CPU Utilization = " << ( (getClk() - (double)CPUUtilizationClocks) / (getClk()-1) ) * 100 << "%\n";
+    file <<"Avg WTA = " << AvgWTA << endl;
+    file <<"Avg Waiting = " << (double)TotalWaiting/ProcessesCount << endl;
+    file <<"Std WTA = " << StdWTA << endl;
+
+    file.close();
+
     cout << "Scheduler exiting...\n";
+
     return 0;
 }

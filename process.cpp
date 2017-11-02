@@ -3,6 +3,8 @@
 #include <sstream>
 #include "clkUtilities.h"
 
+
+
 using namespace std;
 int x;
 int stringToInt(string str);//TODO: include scheduler utilities to use function string to int
@@ -13,22 +15,15 @@ void Ign(int);
 int main(int agrc, char* argv[])
 {
     //abort();
-     signal(SIGCONT,handlerCont);
+    signal(SIGCONT,handlerCont);
     signal(SIGSTOP,handlerStop);
-    signal(SIGKILL,handlerKILLED);
-    signal(SIGINT,handlerKILLED);
-    signal(SIGTTOU,Ign);
-    signal(SIGTTIN,Ign);
-    signal(SIGRTMIN,Ign);
-    signal(32,Ign);
-    signal(96,Ign);
-    signal(SIGUSR1,Ign);
+    //signal(SIGKILL,handlerKILLED);
+    //signal(SIGUSR1,Ign);
    // signal(SIGCONT,Ign);
 
     cout << "Process: Entered process\n";
     initClk();
      x= getClk();
-    int NewClock;
   	int remainingtime = stringToInt(argv[0]);   //remaining time passed as a parameter
 
     while(true)    //loop until process finishes executing
@@ -47,8 +42,9 @@ int main(int agrc, char* argv[])
         if(remainingtime<=0)break;
 
     }
-
+    kill(getppid(),SIGILL);
     cout << "Process: Leaving process   "<<endl;
+
     destroyClk(false);
 
 

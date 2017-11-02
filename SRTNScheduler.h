@@ -12,13 +12,18 @@ class SRTNScheduler : public Scheduler
 private:
 
 	priority_queue<struct PCB, vector<struct PCB>, compareRunningTime> PQueue;
-    int Lprocess=-100;
+
 public:
 
     static void  SRTNHandler(int Sig){
         cout<<"signal : "<<Sig<<endl;
         if(Sig==SIGCONT)
         cout<<"in sig cont handler \n";
+        if(Sig==SIGILL)
+        {
+            ChildDead=true;
+        }
+        else
         if(Sig==SIGCHLD)
         {   int status;
             int p;
@@ -58,6 +63,7 @@ public:
         //TODO : set signal cont handler //
         signal (SIGCONT,SRTNHandler);
         signal (SIGCHLD,SRTNHandler);
+        signal (SIGILL,SRTNHandler);
     };
 
 	//Push received processes in the priority queue
@@ -110,6 +116,7 @@ public:
         kill(ProcessData.Pid,SIGCONT);
             cout<<" running process "<<ProcessData.Pid<<endl;
         }
+        ChildDead=false;
         int status;
         //waitpid(Pid,&status,0);     //wait for process exit
         cout<<" srtn sleep "<<endl;
@@ -123,15 +130,8 @@ public:
         cout<<" return to srtn"<<endl;
 
         kill(ProcessData.Pid,SIGSTOP);
-        if(Lprocess!=ProcessData.Pid)
-        {
-            //not the last chosen process
-            Lprocess=ProcessData.Pid;
-            return 0;
 
-
-        }
-        return -10;
+        return ChildDead;
 
 
     }
