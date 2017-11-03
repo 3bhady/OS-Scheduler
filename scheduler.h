@@ -2,6 +2,7 @@
 #include <queue>
 #include "schedulerUtilities.h"
 #include <string>
+#include<fstream>
 struct processData;
 
 class Scheduler
@@ -11,6 +12,7 @@ public:
     static bool paused;
     static int Lprocess;
     static bool ChildDead;
+    static fstream file;
     static  bool NoMoreProcesses;
     //Push received processes in the queue
     virtual void pushDataToQueue(const vector<struct processData> & PD) = 0;
@@ -26,16 +28,27 @@ public:
 
     //Log process info
     void logProcessData(int Clock, string state, const struct PCB & Process)
-    {
+    {	file.open("scheduler.log",fstream::out | fstream::app);
         cout << "At time " << Clock << " process " << Process.PD.ID << " " + state +
                 " arr " << Process.PD.ArrivalTime << " total " << Process.PD.RunningTime <<
                 " remain " << Process.RemainingTime << " wait " << Process.WaitingTime;
 
+	file<<"At time " << Clock << " process " << Process.PD.ID << " " + state +
+                " arr " << Process.PD.ArrivalTime << " total " << Process.PD.RunningTime <<
+                " remain " << Process.RemainingTime << " wait " << Process.WaitingTime;
+       
+
         if(state != "finished")     //if state == finished do not end line because other information will be logged
+            { 
             cout << endl;
+            file<<"\n";
+	
+	       }
+	file.close();
     };
 };
 bool  Scheduler::NoMoreProcesses=false;
 bool Scheduler::paused=false;
 int Scheduler::Lprocess=-100;
 bool Scheduler::ChildDead=false;
+fstream Scheduler::file;

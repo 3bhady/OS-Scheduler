@@ -69,5 +69,6 @@ public:
         int status;
         waitpid(Pid,&status,0);     //wait for process exit
 		kill(getppid(),SIGIO);
+		return true;
 	};
 };
