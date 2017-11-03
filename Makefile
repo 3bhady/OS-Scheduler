@@ -10,7 +10,9 @@ clean:
 	ipcrm -Q 777
 	@echo "All Items Cleared"
 
-all: clean build
+
 
 run:
 	./main.out
+
+all: clean build run

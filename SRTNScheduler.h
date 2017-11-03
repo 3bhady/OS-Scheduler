@@ -62,7 +62,7 @@ public:
 	SRTNScheduler(){
         //TODO : set signal cont handler //
         signal (SIGCONT,SRTNHandler);
-        signal (SIGCHLD,SRTNHandler);
+        //signal (SIGCHLD,SRTNHandler);
         signal (SIGILL,SRTNHandler);
     };
 
