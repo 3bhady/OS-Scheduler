@@ -128,7 +128,7 @@ public:
         paused=false;
        // else cout<<" finished everything in srtn scheduler \n";
         cout<<" return to srtn"<<endl;
-
+        usleep(50000);
         kill(ProcessData.Pid,SIGSTOP);
 
         return ChildDead;
