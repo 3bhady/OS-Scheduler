@@ -27,8 +27,7 @@ int main(int agrc, char* argv[])
     {
     //cout<<" before waiting \n";
 
-        usleep(100);
-        while(x == getClk());
+        if(remainingtime<=0)break;
         //cout<<" x = "<<x<<endl;
         cout<<"Process: my id is:"<<getpid()<<" call me"<<endl;
         x=getClk();
@@ -36,7 +35,9 @@ int main(int agrc, char* argv[])
         cout<<"Process: proc remain time "<<remainingtime<<endl;
         cout<<"Process clock is "<<getClk()<<endl;
 
-        if(remainingtime<=0)break;
+        usleep(100);
+        while(x == getClk());
+
 
     }
     kill(getppid(),SIGILL);

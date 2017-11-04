@@ -179,7 +179,7 @@ public:
 			//--------------
         cout<<"RRScheduler: return to rr"<<endl;
 
-		usleep(5000);
+		//usleep(5000);
         kill(ProcessData.Pid,SIGSTOP);
        /* if(Lprocess!=ProcessData.Pid)
         {
