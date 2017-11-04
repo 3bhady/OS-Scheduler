@@ -154,7 +154,7 @@ int main(int argc, char* argv[])
                 scheduler->returnProcessToQueue(Process);
 
         }
-        //  while(Stop==getClk()){};
+
 
     }
 

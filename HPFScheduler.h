@@ -16,10 +16,12 @@ public:
 	HPFScheduler(){
 
 		signal(SIGCONT,contSig);
+		signal(SIGCHLD,SIG_IGN);
+		signal(SIGILL,contSig);
 	};
 	static void contSig(int Sig)
 	{
-		//signal(SIGCHLD,RRHandler);
+
 	}
 
 	//Push received processes in the priority queue
@@ -67,8 +69,9 @@ public:
         cout << "Waiting process to exit\n";
 
         int status;
-        waitpid(Pid,&status,0);     //wait for process exit
-		kill(getppid(),SIGIO);
+		pause();
+        //waitpid(Pid,&status,0);     //wait for process exit
+		//kill(getppid(),SIGIO);
 		return true;
 	};
 };
