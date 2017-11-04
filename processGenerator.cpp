@@ -6,10 +6,9 @@
 #include <fstream>
 #include <sstream>
 #include "defs.h"
+
 using namespace std;
 
-
-int stringToInt(string str);
 void clearResources(int);
 void readProcesses(vector<processData> &Process);
 void quantumWake(int sig);
@@ -168,15 +167,6 @@ void clearResources(int)
     exit(0);
 }
 
-int stringToInt(string str)
-{
-    int x;
-    stringstream ss;
-    ss << str;
-    ss >> x;
-    return x;
-}
-
 void readProcesses(vector<processData> &Process)
 {
     ifstream FIn("processes.txt");  //reading processes data from processes.txt file
@@ -211,10 +201,10 @@ void readProcesses(vector<processData> &Process)
             {
             	struct processData PData;
 
-            	PData.ID=stringToInt(parameter[0]);
-            	PData.ArrivalTime=stringToInt(parameter[1]);
-            	PData.RunningTime=stringToInt(parameter[2]);
-            	PData.Priority=stringToInt(parameter[3]);
+            	PData.ID=stoi(parameter[0]);
+            	PData.ArrivalTime=stoi(parameter[1]);
+            	PData.RunningTime=stoi(parameter[2]);
+            	PData.Priority=stoi(parameter[3]);
 
 	            Process.push_back(PData);
             }

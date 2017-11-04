@@ -3,6 +3,8 @@
 #include <vector>
 #include <sstream>
 #include "queueUtilities.h"
+#include <fstream>
+#include <math.h>
 
 using namespace std;
 
@@ -53,12 +55,22 @@ int getData(int PrevClock,vector<struct processData>& PD)
     return 0;
 }
 
-int stringToInt(string str)
+void printCalculations(int CPUUtilizationClocks,int ProcessesCount,double TotalWaiting,double TotalWTA,const vector<double> & WTAs,ofstream & file)
 {
-    int x;
-    stringstream ss;
-    ss << str;
-    ss >> x;
-    return x;
-}
+    //Calculating scheduler.perf variables
+    double StdWTA = 0, AvgWTA = (double)TotalWTA/ProcessesCount;
 
+    for(int i = 0; i < WTAs.size(); i++)
+        StdWTA += (AvgWTA - WTAs[i]) * (AvgWTA - WTAs[i]);
+    StdWTA /= ProcessesCount;
+    StdWTA = sqrt(StdWTA);
+
+    file.open("scheduler.perf",fstream::out);
+
+    file << "CPU Utilization = " << ( (getClk(FALLING) - (double)CPUUtilizationClocks) / (getClk(FALLING)-1) ) * 100 << "%\n";
+    file << "Avg WTA = " << AvgWTA << endl;
+    file << "Avg Waiting = " << (double)TotalWaiting/ProcessesCount << endl;
+    file << "Std WTA = " << StdWTA << endl;
+
+    file.close();
+}

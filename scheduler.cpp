@@ -7,18 +7,18 @@
 #include <string>
 #include <iomanip>
 #include "defs.h"
-#include <fstream>
-#include <math.h>
 
 using namespace std;
 
+
+
 int main(int argc, char* argv[])
 {
-	ofstream file;
-    bool EndScheduler = false;
+    bool EndScheduler = false; 
     int CPUUtilizationClocks = 0, ProcessesCount;
     double TotalWaiting = 0, TotalWTA = 0;
-    vector<double> WTAs;	//contains WTA of all processes
+    vector<double> WTAs;    //contains WTA of all processes
+    ofstream file;  
     string SchAlgo = argv[0];  //Scheduler algorithm passed to the process
 
 	remove("scheduler.log");	//delete log file to create new one
@@ -67,9 +67,6 @@ int main(int argc, char* argv[])
             ProcessesCount = PD[PD.size()-1].ID;
         }
 
-        if(PD.size() != 0)
-            cout << "count me" << endl;
-
         //this must be before checking for state or otherwise the code will break
         scheduler->pushDataToQueue(PD);  //Push received processes in the priority queue
 
@@ -100,9 +97,7 @@ int main(int argc, char* argv[])
             status = "started";
             Process.LastRunTime = Process.PD.ArrivalTime;
         }
-        else {
-            status = "resumed";
-        }
+        else status = "resumed";
 
         Process.WaitingTime += Clock - Process.LastRunTime;
 
@@ -132,9 +127,7 @@ int main(int argc, char* argv[])
         
         if (ProcessState)     //process finished
         {
-            status = "finished";
-
-            scheduler->logProcessData(Stop,status,Process);
+            scheduler->logProcessData(Stop,"finished",Process);
 
             int TA = Stop - Process.PD.ArrivalTime;    //Turn around
             double WTA = (double)TA / Process.PD.RunningTime;   //Weighted turn around
@@ -151,29 +144,14 @@ int main(int argc, char* argv[])
         }
         else
         {
-                scheduler->logProcessData(Stop,"stopped",Process);
-                scheduler->returnProcessToQueue(Process);
+            scheduler->logProcessData(Stop,"stopped",Process);
+            scheduler->returnProcessToQueue(Process);
         }
     }
 
-    //Calculating scheduler.perf variables
-    double StdWTA = 0, AvgWTA = (double)TotalWTA/ProcessesCount;
-
-    for(int i = 0; i < WTAs.size(); i++)
-        StdWTA += (AvgWTA - WTAs[i]) * (AvgWTA - WTAs[i]);
-    StdWTA /= ProcessesCount;
-    StdWTA = sqrt(StdWTA);
-
-    file.open("scheduler.perf",fstream::out);
-
-    file <<"CPU Utilization = " << ( (getClk(FALLING) - (double)CPUUtilizationClocks) / (getClk(FALLING)-1) ) * 100 << "%\n";
-    file <<"Avg WTA = " << AvgWTA << endl;
-    file <<"Avg Waiting = " << (double)TotalWaiting/ProcessesCount << endl;
-    file <<"Std WTA = " << StdWTA << endl;
-
-    file.close();
+    printCalculations(CPUUtilizationClocks,ProcessesCount,TotalWaiting,TotalWTA,WTAs,file);
 
     cout << "Scheduler exiting...\n";
-
     return 0;
 }
+

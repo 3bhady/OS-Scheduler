@@ -6,7 +6,6 @@
 using namespace std;
 
 int x;
-int stringToInt(string str);//TODO: include scheduler utilities to use function string to int
 void handlerStop(int);
 void handlerCont(int);
 
@@ -20,7 +19,7 @@ int main(int agrc, char* argv[])
     initClk();
     x = getClk(RISING);
 
-  	int remainingtime = stringToInt(argv[0]);   //remaining time passed as a parameter
+  	int remainingtime = stoi(argv[0]);   //remaining time passed as a parameter
 
     while(true)    //loop until process finishes executing
     {
@@ -46,15 +45,6 @@ int main(int agrc, char* argv[])
     destroyClk(false);
 
     return 53;
-}
-
-int stringToInt(string str)
-{
-    int x;
-    stringstream ss;
-    ss << str;
-    ss >> x;
-    return x;
 }
 
 void handlerCont(int sig)
