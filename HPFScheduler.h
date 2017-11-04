@@ -18,22 +18,23 @@ public:
 		signal(SIGCHLD,SIG_IGN);
 		signal(SIGILL,processExitSig);
 	};
+
+	//Handler for the exit signal of the process
 	static void processExitSig(int Sig)
 	{
-		int c = getClk(false);
-		while(c == getClk(false));
-		
-	}
-
+		int c = getClk(FALLING);	//wait for the next positive edge
+		while(c == getClk(FALLING));
+	};
+	
+	//Handler of the continue signal from the process generator
 	static void contSig(int Sig)
 	{
-		
-	}	
+		//Wake up...
+	};	
 
 	//Push received processes in the priority queue
 	virtual void pushDataToQueue(const vector<struct processData> & PD)
 	{
-
 		for(int i = 0; i < PD.size();i++)
 		{
 			struct PCB TempPCB;
@@ -48,36 +49,33 @@ public:
 	{
 		if(PQueue.size() == 0)
 			return -1;
-        Process = PQueue.top();
+        	Process = PQueue.top();
 		PQueue.pop();   //Pop process from queue
 		return 1;
 	};
 
 
-    //Returns process to the end of the queue to wait for its turn to run again
+    	//Returns process to the end of the queue to wait for its turn to run again
 	virtual void returnProcessToQueue(const struct PCB & Process)
 	{
 		PQueue.push(Process);
 	};
 
-	//Handle process stat
-	virtual int runProcess( struct PCB & ProcessData)
+	//Fork process to run
+	//returns true if process finished, otherwise false
+	virtual bool runProcess( struct PCB & ProcessData)
 	{
         int Pid = fork();
 
         if(Pid == 0)
         {
-			cout<<"p ran"<<endl;
             //child .. we create process here
             execl("process.out",to_string(ProcessData.RemainingTime).c_str(),(char  *) NULL);
         }
 
         cout << "Waiting process to exit\n";
+		pause();	//sleep until exit of process
 
-        int status;
-		pause();
-        //waitpid(Pid,&status,0);     //wait for process exit
-		//kill(getppid(),SIGIO);
-		return true;
+		return true;	//process has finished processing
 	};
 };

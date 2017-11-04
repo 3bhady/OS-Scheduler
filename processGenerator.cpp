@@ -14,51 +14,47 @@ void clearResources(int);
 void readProcesses(vector<processData> &Process);
 void quantumWake(int sig);
 void newProcessWake(int sig);
-int QuantumStart=-1;
-bool WakeOnNewProcess=false;
+
+int QuantumStart = -1;
+bool WakeOnNewProcess = false;
+
 int main() {
 
-     // variables
     string ScAlgo;
     int Quantum;
     int pid;
     int SchedulerID;
     int ClockID;
-
-    vector<processData> Process;
+    vector<processData> Process;	//List of processes to run
 
     signal(SIGINT,clearResources);  //clear resources on sudden exit
-    void  schedulerResponse();
+    signal(SIGALRM,quantumWake);	//wake scheduler when quantum finishes
+    signal(SIGIO,newProcessWake);	//wake scheduler on arrival of new process
+
     initQueue(true);
 
     readProcesses(Process);     //read processes data from file
 
-    cout<<"start"<<endl;
-    //TODO: 
-    //Ask the user about the chosen scheduling Algorithm and its parameters if exists.
-
-    cout<<"Enter scheduling algorithm \n"
+    cout << "Start\n";
+    cout << "Enter scheduling algorithm\n"
             "1-HPF\n"
             "2-SRTN\n"
             "3-RR\n";
-    cin>>ScAlgo;
+    cin >> ScAlgo;
 
-    //  ScAlgo = SRTN;
-    signal(SIGALRM,quantumWake);
-    signal(SIGIO,newProcessWake);
-    if(ScAlgo == RR){
-        //RR
-        cout<<"Enter Quantum value \n";
-        cin>>Quantum;
-        if(Quantum<1) {
-            cout << "enter a valid quantum msh gayen nharag hena" << endl;
+    if(ScAlgo == RR)
+    {
+        cout << "Enter Quantum value\n";
+        cin >> Quantum;
+        if(Quantum < 1) 
+        {
+            cout << "Enter a valid quantum value\n";
             exit(0);
         }
     }
 
-    //Initiate and create Scheduler and Clock processes.
-    pid=fork();
-    if(pid==0)
+    pid = fork();
+    if(pid == 0)
     {
         //child .. we create Clock process here
         execl("clock.out","",(char  *) NULL);
@@ -66,41 +62,38 @@ int main() {
 
     ClockID = pid;
 
-    pid=fork();
-    if(pid==0)
+    pid = fork();
+    if(pid == 0)
     {
         //child .. we create scheduler process here
         execl("sch.out",ScAlgo.c_str(),(char  *) NULL);
     }
 
-    //storing Scheduler ID for other purposes including a massive destruction to this damn project
+    //Storing Scheduler ID for signals communication
     SchedulerID=pid;
 
-    //use this function AFTER creating clock process to initialize clock, and initialize MsgQueue
+    //Use this function AFTER creating clock process to initialize clock, and initialize MsgQueue
     initClk();
-   // clearResources(0);   //to clear all resources
-    //TODO:  Generation Main Loop
-    //Send & Notify the information to  the scheduler at the appropriate time
-    //(only when a process arrives) so that it will be put it in its turn.
+
     int x;
     while(1){
 
-        x = getClk(false);    //to get time
-       // printf("current time is %d\n",x);
-        if( (x-QuantumStart) == Quantum && QuantumStart !=-1)
+        x = getClk(FALLING);    //to get time
+
+        if( (x-QuantumStart) == Quantum && QuantumStart != -1)
         {
-            kill(SchedulerID,SIGCONT);  //wake scheduler as new processes added to the queue
-            QuantumStart=-1;
+            kill(SchedulerID,SIGCONT);  //wake scheduler as new processes are added to the queue
+            QuantumStart = -1;
         }
 
-        //no processes in the file, send end of transmission message
+        //No processes in the file, send end of transmission message
         if(Process.size() == 0)
         {
             lastSend();
             break;
         }
 
-        bool WakeScheduler =false;
+        bool WakeScheduler = false;
 
         for(int i = 0; i < Process.size(); i++)
         {
@@ -110,12 +103,11 @@ int main() {
 
                 if(ScAlgo == SRTN)
                 {
-
                     WakeScheduler = true;
-                cout<<" another input to scheduler"<<endl;
+                	cout << "Another input to scheduler\n";
                 }
                 if(result == -1) {    //returns -1 on failure;
-                    printf("Failed to push process in message queue!\n");
+                    cout << "Failed to push process in message queue\n";
                 }
 
                 Process.erase(Process.begin() + i);     //remove process from vector
@@ -125,33 +117,27 @@ int main() {
         }
 
         if(Process.size() == 0)
-        {
             lastSend();  //no more processes, send end of transmission message
-            //   kill(SchedulerID,SIGCONT);  //wake scheduler to receive end process
-          //  cout<<" to send last process"<<endl;
-
-        }
 
 
-        if(!queueIsEmpty()) {
-            if (WakeOnNewProcess) {
+        if(!queueIsEmpty()) 
+        {
+            if (WakeOnNewProcess) 
+            {
                 WakeOnNewProcess = false;
-
-                kill(SchedulerID, SIGCONT);  //wake scheduler as new processes added to the queue
-                cout << "waking up scheduler by request from the shceduler" << endl;
-                cout << "ProcessGenerator clock: "<<x<<endl;
+                kill(SchedulerID, SIGCONT);  //wake scheduler as new processes are added to the queue
+                cout << "Waking up scheduler by request from the shceduler\n";
+                cout << "ProcessGenerator clock: " << x << endl;
                 WakeScheduler = false;
             }
         }
 
-        if(Process.size()==0)break;
+        if(Process.size() == 0)
+        	break;
 
         //TODO: respond to scheduler timer , wether scheduler needs to  be invoked at certain  times or no
         //schedulerResponse();
     }
-
-
-
 
     int status;
     waitpid(SchedulerID,&status,WNOHANG);     //wait for scheduler exit
@@ -159,27 +145,24 @@ int main() {
     {
         waitpid(SchedulerID,&status,WNOHANG);     //wait for scheduler exit
         if(WIFEXITED(status))
-        {
             break;
-        }
 
         if( ((x-QuantumStart) == Quantum )&& QuantumStart !=-1)
         {
-
-            kill(SchedulerID,SIGCONT);  //wake scheduler as new processes added to the queue
-            cout<<"please wake up this is the morning call"<<endl;
+            kill(SchedulerID,SIGCONT);  //wake scheduler as new processes are added to the queue
+            cout << "Please wake up this is the morning call\n";
             QuantumStart=-1;
         }
-        x = getClk(false);
+        x = getClk(FALLING);
     }
-    cout<<"Exit status is: "<<status<<endl;
+    cout << "Exit status is: " << status << endl;
 
     clearResources(0);   //to clear all resources
 }
 
 void clearResources(int)
 {
-    cout<<"Resources cleared\n";
+    cout << "Resources cleared\n";
     msgctl(qid, IPC_RMID, (struct msqid_ds*)0);
     destroyClk(true);
     exit(0);
@@ -205,11 +188,12 @@ void readProcesses(vector<processData> &Process)
         {
             vector<string> parameter;   //vector contains the process parameters
             string temp="";     //stores the parameter
-            for(int i=0; i<Line.size(); i++)
+
+            for(int i = 0; i < Line.size(); i++)
             {
-                if(Line[i] != '\t'&& Line[i]!=' ' && Line[i]!='\n')     //not tab character
+                if(Line[i] != '\t' && Line[i] != ' ' && Line[i] != '\n') //not tab or space or end line characters
                 {
-                    temp+= Line[i];
+                    temp += Line[i];
                 }
                 else {
                     if(temp.size()!=0)
@@ -224,16 +208,16 @@ void readProcesses(vector<processData> &Process)
                 parameter.push_back(temp);
             }
             if(parameter.size()!=0)
-            {struct processData PData;
+            {
+            	struct processData PData;
 
-            PData.ID=stringToInt(parameter[0]);
-            PData.ArrivalTime=stringToInt(parameter[1]);
-            PData.RunningTime=stringToInt(parameter[2]);
-            PData.Priority=stringToInt(parameter[3]);
+            	PData.ID=stringToInt(parameter[0]);
+            	PData.ArrivalTime=stringToInt(parameter[1]);
+            	PData.RunningTime=stringToInt(parameter[2]);
+            	PData.Priority=stringToInt(parameter[3]);
 
-
-            Process.push_back(PData);
-                }
+	            Process.push_back(PData);
+            }
 
         }
     }
@@ -241,14 +225,11 @@ void readProcesses(vector<processData> &Process)
 }
 
 void quantumWake(int sig){
-    cout<<"Call to Quantum Wake in process generator has been made"<<endl;
-    QuantumStart=getClk(false);
+    cout<<"Call to Quantum Wake in process generator has been made\n";
+    QuantumStart = getClk(FALLING);
 }
-void newProcessWake(int sig){
-    cout<<"Call to wake on new process in process generator has been made"<<endl;
-    WakeOnNewProcess=true;
-}
-void schedulerResponse()
-{
 
+void newProcessWake(int sig){
+    cout<<"Call to wake on new process in process generator has been made\n";
+    WakeOnNewProcess = true;
 }

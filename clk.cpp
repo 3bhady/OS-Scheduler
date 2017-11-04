@@ -6,6 +6,7 @@ This file represents an emulated clock for the simulation purpose only
 it is not a real part of operating system */
 
 int shmid;
+
 /*clear the resources before exit*/
 void cleanup(int x)
 {
@@ -16,12 +17,13 @@ void cleanup(int x)
 
 /* this file represents the system clock for ease of calculations*/
 int main() {
+
   printf("Clock Starting\n");
   signal(SIGINT,cleanup);
   int clk=0;
 
- //Create shared memory for one integer variable 4 bytes
- shmid = shmget(SHKEY, 4, IPC_CREAT|0644);
+ shmid = shmget(SHKEY, 4, IPC_CREAT|0644);	 //Create shared memory for one integer variable 4 bytes
+
  if((long)shmid == -1)
   	{
   	  perror("Error in create shm");
@@ -40,7 +42,7 @@ int main() {
   }
    while(1)
    {
-       usleep(500000);
+       usleep(500000);	//clock working on 2 edges(sleep 1/2 sec)
         //sleep(1);
        (*shmaddr)++;
    }

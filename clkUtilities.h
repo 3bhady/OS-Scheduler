@@ -13,34 +13,26 @@
 #include <signal.h>
 
 #define SHKEY 300
-
-
+#define RISING true
+#define FALLING false
 
 ///==============================
 //don't mess with this variable//
 int* shmaddr;                  //
 //===============================
 
-
-
 int getClk()
 {
-  
    	int clk=*shmaddr;
-       return clk;		
+    return clk;		
 }
 
+//Modified clock with edges
 int getClk(bool Edge)
 {
-
-    //1 -> 0 , 0
-    //2 -> 1 , 1
-    //3 -> 1 , 2
-    //4 -> 2 , 2
-    //5 -> 2 , 3
-    //6 ->
     int clk=*shmaddr;
-    if(Edge == false)
+
+    if(Edge == FALLING)
         return clk/2;
     else return (clk+1)/2;		
 }
@@ -57,16 +49,13 @@ void initClk()
   while((int)shmid == -1)
   	{
           //Make sure that the Clock exists
-        printf("wait, Clock not initialized yet\n");
-	//usleep(500000);
+        printf("Wait, Clock not initialized yet\n");
         sleep(1);
         shmid = shmget(SHKEY, 4, 0444);
   	}
 
    shmaddr = (int*) shmat(shmid, (void *)0, 0);
 }
-
-
 
 /* All process call this function at the end to release the  communication
 resources between them and the clock module 

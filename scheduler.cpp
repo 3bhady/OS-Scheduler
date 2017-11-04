@@ -16,16 +16,16 @@ int main(int argc, char* argv[])
 {
 	ofstream file;
     bool EndScheduler = false;
-    remove( "scheduler.log" );
     int CPUUtilizationClocks = 0, ProcessesCount;
     double TotalWaiting = 0, TotalWTA = 0;
-    vector<double> WTAs;
+    vector<double> WTAs;	//contains WTA of all processes
     string SchAlgo = argv[0];  //Scheduler algorithm passed to the process
 
-    Scheduler* scheduler;    //Scheduler object
+	remove("scheduler.log");	//delete log file to create new one
 
-    //Create scheduler according to scheduler algorithm
+    Scheduler* scheduler;    //to create Scheduler object
 
+    //Create scheduler object according to scheduler algorithm
     if(SchAlgo == HPF) {
         scheduler = new HPFScheduler();
         cout <<"Created HPFScheduler\n";
@@ -41,22 +41,23 @@ int main(int argc, char* argv[])
 
 
     initQueue(false);   //Subscribe to message queue
-
     initClk();
 
-    int Clock = -1;     //Initial clock time = -1
-
-    string status;       //Process state
-
     /*
-     HPF -> scheduler  continue when it receives signal from process
+     HPF -> scheduler invoked when it receives exit signal from process
      SRTN -> invoked when another process pushed in queue
      RR -> invoked  every quantum
      */
-    bool ProcessState=false;
+
+
+    int Clock = -1;     //Initial clock time = -1
+    string status;       //Process state
+    bool ProcessState = false;
+
     while (1)
     {
-        cout<<"Scheduler Clock " << getClk(false)<<endl;
+        cout << "Scheduler Clock " << getClk(FALLING) << endl;
+
         vector<struct processData> PD;  //Vector of arrived processes
 
         int end = getData(Clock,PD);  //Get processes from message queue
@@ -65,8 +66,10 @@ int main(int argc, char* argv[])
             EndScheduler = true;
             ProcessesCount = PD[PD.size()-1].ID;
         }
-        if(PD.size()!=0)
-            cout<<"count me"<<endl;
+
+        if(PD.size() != 0)
+            cout << "count me" << endl;
+
         //this must be before checking for state or otherwise the code will break
         scheduler->pushDataToQueue(PD);  //Push received processes in the priority queue
 
@@ -78,18 +81,19 @@ int main(int argc, char* argv[])
         {
             if (EndScheduler == true)
                 break;  //End scheduler
-            cout<<"No processes in the queue nothing to be run\n";
-            kill(getppid(),SIGIO);
-            cout<<"Scheduler: Waiting because no processes are available\n";
-            int Temp = getClk(false);
-            pause();
-            CPUUtilizationClocks += getClk(false) - Temp;
 
-            //cout<<"Schduler: done waiting because either a process has arrived or something went wrong, if no process arrived check the signals"<<endl;
+ 			cout << "Scheduler: Waiting because no processes are available\n";
+            kill(getppid(),SIGIO);	//Send signal to the process generator to wake scheduler
+           
+            int Temp = getClk(FALLING);
+            pause();
+
+            CPUUtilizationClocks += getClk(FALLING) - Temp;
+
             continue;
         }
 
-        Clock = getClk(false);    //clock at which process starts running
+        Clock = getClk(FALLING);    //clock at which process starts running
 
         if(Process.Pid == -1)   //Process status = started (if first time to run)
         {
@@ -102,17 +106,14 @@ int main(int argc, char* argv[])
 
         Process.WaitingTime += Clock - Process.LastRunTime;
 
-       // if(ProcessState!=LASTPROCESS)
-        //{
-            //cout<<"clock ()() "<<Clock<<endl;
-
         scheduler->logProcessData(Clock,status,Process);
-        //}
 
-        ProcessState=scheduler->runProcess(Process);
+        ProcessState = scheduler->runProcess(Process);
 
         PD.clear();
-       //----------------experimental
+
+
+       	//----------------experimental
         end = getData(Clock,PD);  //Get processes from message queue
 
         if (end == -1)  //If end process is received
@@ -124,12 +125,11 @@ int main(int argc, char* argv[])
         //----------------experimental
 
 
+        int Stop = getClk(FALLING);    //clock at which process finishes/stops running
 
-//cout<<"after run process"<<endl;
-        int Stop = getClk(false);    //clock at which process finishes/stops running
         Process.LastRunTime = Stop;
         Process.RemainingTime -= (Stop - Clock);  //subtract running time from the process remaining time
-        //cout<<" process remaining time "<<Process.RemainingTime<<endl;
+        
         if (ProcessState)     //process finished
         {
             status = "finished";
@@ -153,10 +153,7 @@ int main(int argc, char* argv[])
         {
                 scheduler->logProcessData(Stop,"stopped",Process);
                 scheduler->returnProcessToQueue(Process);
-
         }
-
-
     }
 
     //Calculating scheduler.perf variables
@@ -169,7 +166,7 @@ int main(int argc, char* argv[])
 
     file.open("scheduler.perf",fstream::out);
 
-    file <<"CPU Utilization = " << ( (getClk(false) - (double)CPUUtilizationClocks) / (getClk(false)-1) ) * 100 << "%\n";
+    file <<"CPU Utilization = " << ( (getClk(FALLING) - (double)CPUUtilizationClocks) / (getClk(FALLING)-1) ) * 100 << "%\n";
     file <<"Avg WTA = " << AvgWTA << endl;
     file <<"Avg Waiting = " << (double)TotalWaiting/ProcessesCount << endl;
     file <<"Std WTA = " << StdWTA << endl;
