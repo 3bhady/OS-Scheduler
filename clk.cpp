@@ -40,7 +40,8 @@ int main() {
   }
    while(1)
    {
-       sleep(1);
+       usleep(500000);
+        //sleep(1);
        (*shmaddr)++;
    }
 

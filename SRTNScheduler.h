@@ -22,6 +22,8 @@ public:
         if(Sig==SIGILL)
         {
             ChildDead=true;
+	    int c = getClk(false);
+	    while(c == getClk(false));
         }
         else
         if(Sig==SIGCHLD)

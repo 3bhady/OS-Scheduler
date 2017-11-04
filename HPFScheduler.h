@@ -16,12 +16,19 @@ public:
 	HPFScheduler(){
 		signal(SIGCONT,contSig);
 		signal(SIGCHLD,SIG_IGN);
-		signal(SIGILL,contSig);
+		signal(SIGILL,processExitSig);
 	};
+	static void processExitSig(int Sig)
+	{
+		int c = getClk(false);
+		while(c == getClk(false));
+		
+	}
+
 	static void contSig(int Sig)
 	{
-
-	}
+		
+	}	
 
 	//Push received processes in the priority queue
 	virtual void pushDataToQueue(const vector<struct processData> & PD)

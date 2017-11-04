@@ -33,7 +33,9 @@ public:
 		if (Sig==SIGILL)
 		{
 			cout << "RRScheduler: child handler , child is dead" << endl;
-			ChildDead=true;
+			ChildDead = true;
+			int c = getClk(false);
+			while(c == getClk(false));
 		}
 		if(Sig==SIGCONT)
 		{

@@ -30,6 +30,20 @@ int getClk()
        return clk;		
 }
 
+int getClk(bool Edge)
+{
+
+    //1 -> 0 , 0
+    //2 -> 1 , 1
+    //3 -> 1 , 2
+    //4 -> 2 , 2
+    //5 -> 2 , 3
+    //6 ->
+    int clk=*shmaddr;
+    if(Edge == false)
+        return clk/2;
+    else return (clk+1)/2;		
+}
 
 /* All process call this function at the begining to establish communication
 between them and the clock module 
@@ -44,6 +58,7 @@ void initClk()
   	{
           //Make sure that the Clock exists
         printf("wait, Clock not initialized yet\n");
+	//usleep(500000);
         sleep(1);
         shmid = shmget(SHKEY, 4, 0444);
   	}

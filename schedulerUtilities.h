@@ -48,7 +48,7 @@ int getData(int PrevClock,vector<struct processData>& PD)
             }
 
         }
-        PrevClock = getClk();
+        PrevClock = getClk(true);
   //  }
     return 0;
 }

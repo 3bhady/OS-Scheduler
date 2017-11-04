@@ -85,7 +85,7 @@ int main() {
     int x;
     while(1){
 
-        x = getClk();    //to get time
+        x = getClk(false);    //to get time
        // printf("current time is %d\n",x);
         if( (x-QuantumStart) == Quantum && QuantumStart !=-1)
         {
@@ -139,6 +139,7 @@ int main() {
 
                 kill(SchedulerID, SIGCONT);  //wake scheduler as new processes added to the queue
                 cout << "waking up scheduler by request from the shceduler" << endl;
+                cout << "ProcessGenerator clock: "<<x<<endl;
                 WakeScheduler = false;
             }
         }
@@ -169,7 +170,7 @@ int main() {
             cout<<"please wake up this is the morning call"<<endl;
             QuantumStart=-1;
         }
-        x=getClk();
+        x = getClk(false);
     }
     cout<<"Exit status is: "<<status<<endl;
 
@@ -241,7 +242,7 @@ void readProcesses(vector<processData> &Process)
 
 void quantumWake(int sig){
     cout<<"Call to Quantum Wake in process generator has been made"<<endl;
-    QuantumStart=getClk();
+    QuantumStart=getClk(false);
 }
 void newProcessWake(int sig){
     cout<<"Call to wake on new process in process generator has been made"<<endl;

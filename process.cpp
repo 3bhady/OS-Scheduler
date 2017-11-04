@@ -20,7 +20,7 @@ int main(int agrc, char* argv[])
 
     cout << "Process: Entered process\n";
     initClk();
-     x= getClk();
+    x = getClk(true);
   	int remainingtime = stringToInt(argv[0]);   //remaining time passed as a parameter
 
     while(true)    //loop until process finishes executing
@@ -30,13 +30,13 @@ int main(int agrc, char* argv[])
         if(remainingtime<=0)break;
         //cout<<" x = "<<x<<endl;
         cout<<"Process: my id is:"<<getpid()<<" call me"<<endl;
-        x=getClk();
+        x=getClk(true);
         remainingtime--; //run=2  clock=3  -> clock=4 re=1 ,clock=5 re=0
         cout<<"Process: proc remain time "<<remainingtime<<endl;
-        cout<<"Process clock is "<<getClk()<<endl;
+        cout<<"Process clock is "<<getClk(true)<<endl;
 
-        usleep(100);
-        while(x == getClk());
+        //usleep(100);
+        while(x == getClk(true));
 
 
     }
@@ -62,7 +62,7 @@ void handlerKILLED(int sig )
 cout<<"burned meeeeeeeeeeeeeeeeeeeeeeee"<<endl;
 }
 void handlerCont(int sig){
-    x=getClk();
+    x = getClk(true);
     cout<<"Process: handler continue\n";
 }
 void handlerStop(int sig )

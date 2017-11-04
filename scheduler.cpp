@@ -56,7 +56,7 @@ int main(int argc, char* argv[])
     bool ProcessState=false;
     while (1)
     {
-        cout<<"Scheduler Clock "<<getClk()<<endl;
+        cout<<"Scheduler Clock " << getClk(false)<<endl;
         vector<struct processData> PD;  //Vector of arrived processes
 
         int end = getData(Clock,PD);  //Get processes from message queue
@@ -81,15 +81,15 @@ int main(int argc, char* argv[])
             cout<<"No processes in the queue nothing to be run\n";
             kill(getppid(),SIGIO);
             cout<<"Scheduler: Waiting because no processes are available\n";
-            int Temp = getClk();
+            int Temp = getClk(false);
             pause();
-            CPUUtilizationClocks += getClk() - Temp;
+            CPUUtilizationClocks += getClk(false) - Temp;
 
             //cout<<"Schduler: done waiting because either a process has arrived or something went wrong, if no process arrived check the signals"<<endl;
             continue;
         }
 
-        Clock = getClk();    //clock at which process starts running
+        Clock = getClk(false);    //clock at which process starts running
 
         if(Process.Pid == -1)   //Process status = started (if first time to run)
         {
@@ -126,7 +126,7 @@ int main(int argc, char* argv[])
 
 
 //cout<<"after run process"<<endl;
-        int Stop = getClk();    //clock at which process finishes/stops running
+        int Stop = getClk(false);    //clock at which process finishes/stops running
         Process.LastRunTime = Stop;
         Process.RemainingTime -= (Stop - Clock);  //subtract running time from the process remaining time
         //cout<<" process remaining time "<<Process.RemainingTime<<endl;
@@ -169,7 +169,7 @@ int main(int argc, char* argv[])
 
     file.open("scheduler.perf",fstream::out);
 
-    file <<"CPU Utilization = " << ( (getClk() - (double)CPUUtilizationClocks) / (getClk()-1) ) * 100 << "%\n";
+    file <<"CPU Utilization = " << ( (getClk(false) - (double)CPUUtilizationClocks) / (getClk(false)-1) ) * 100 << "%\n";
     file <<"Avg WTA = " << AvgWTA << endl;
     file <<"Avg Waiting = " << (double)TotalWaiting/ProcessesCount << endl;
     file <<"Std WTA = " << StdWTA << endl;
