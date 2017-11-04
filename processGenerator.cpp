@@ -50,8 +50,10 @@ int main() {
         //RR
         cout<<"Enter Quantum value \n";
         cin>>Quantum;
-        if(Quantum<1)
-            cout<<"enter a valid quantum msh gayen nharag hena"<<endl;
+        if(Quantum<1) {
+            cout << "enter a valid quantum msh gayen nharag hena" << endl;
+            exit(0);
+        }
     }
 
     //Initiate and create Scheduler and Clock processes.
@@ -204,11 +206,12 @@ void readProcesses(vector<processData> &Process)
             string temp="";     //stores the parameter
             for(int i=0; i<Line.size(); i++)
             {
-                if(Line[i] != '\t')     //not tab character
+                if(Line[i] != '\t'&& Line[i]!=' ' && Line[i]!='\n')     //not tab character
                 {
                     temp+= Line[i];
                 }
                 else {
+                    if(temp.size()!=0)
                     parameter.push_back(temp);
                     temp="";
                 }
@@ -216,9 +219,11 @@ void readProcesses(vector<processData> &Process)
 
             /*pushing process data into processData struct and pushing the struct
             in the processes vector*/
-            parameter.push_back(temp);
-
-            struct processData PData;
+            if(temp.size()!=0) {
+                parameter.push_back(temp);
+            }
+            if(parameter.size()!=0)
+            {struct processData PData;
 
             PData.ID=stringToInt(parameter[0]);
             PData.ArrivalTime=stringToInt(parameter[1]);
@@ -227,6 +232,8 @@ void readProcesses(vector<processData> &Process)
 
 
             Process.push_back(PData);
+                }
+
         }
     }
     FIn.close();
