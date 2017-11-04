@@ -17,9 +17,6 @@ int main(int agrc, char* argv[])
     //abort();
     signal(SIGCONT,handlerCont);
     signal(SIGSTOP,handlerStop);
-    //signal(SIGKILL,handlerKILLED);
-    //signal(SIGUSR1,Ign);
-   // signal(SIGCONT,Ign);
 
     cout << "Process: Entered process\n";
     initClk();
