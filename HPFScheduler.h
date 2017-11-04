@@ -3,7 +3,7 @@
 
 struct comparePriority{
     bool operator()(const struct PCB & p1,const struct PCB & p2) {
-        return (p1.PD.Priority < p2.PD.Priority);
+        return (p1.PD.Priority > p2.PD.Priority);
     }
 };
 
@@ -14,7 +14,6 @@ private:
 public:
 	//Constructor
 	HPFScheduler(){
-
 		signal(SIGCONT,contSig);
 		signal(SIGCHLD,SIG_IGN);
 		signal(SIGILL,contSig);

@@ -78,9 +78,9 @@ int main(int argc, char* argv[])
         {
             if (EndScheduler == true)
                 break;  //End scheduler
-            cout<<"no processes in the queue nothing to be run\n";
+            cout<<"No processes in the queue nothing to be run\n";
             kill(getppid(),SIGIO);
-            cout<<"Scheduler: waiting because no processes are available\n";
+            cout<<"Scheduler: Waiting because no processes are available\n";
             int Temp = getClk();
             pause();
             CPUUtilizationClocks += getClk() - Temp;
@@ -106,14 +106,14 @@ int main(int argc, char* argv[])
         //{
             //cout<<"clock ()() "<<Clock<<endl;
 
-            scheduler->logProcessData(Clock,status,Process);
+        scheduler->logProcessData(Clock,status,Process);
         //}
 
-         ProcessState=scheduler->runProcess(Process);
+        ProcessState=scheduler->runProcess(Process);
 
         PD.clear();
        //----------------experimental
-         end = getData(Clock,PD);  //Get processes from message queue
+        end = getData(Clock,PD);  //Get processes from message queue
 
         if (end == -1)  //If end process is received
         {
@@ -144,8 +144,9 @@ int main(int argc, char* argv[])
             WTAs.push_back(WTA);
 
             cout << " TA " << TA << " WTA " << setprecision(2) << fixed << WTA << endl;
+
             file.open("scheduler.log",fstream::out | fstream::app);
-            file<<" TA " << TA << " WTA " << setprecision(2) << fixed << WTA << "\n";
+            file << " TA " << TA << " WTA " << setprecision(2) << fixed << WTA << endl;
             file.close();
         }
         else
@@ -158,11 +159,13 @@ int main(int argc, char* argv[])
 
     }
 
-    //Calculating scheduler.perf  variables
+    //Calculating scheduler.perf variables
     double StdWTA = 0, AvgWTA = (double)TotalWTA/ProcessesCount;
 
     for(int i = 0; i < WTAs.size(); i++)
-        StdWTA += fabs( AvgWTA - WTAs[i]);
+        StdWTA += (AvgWTA - WTAs[i]) * (AvgWTA - WTAs[i]);
+    StdWTA /= ProcessesCount;
+    StdWTA = sqrt(StdWTA);
 
     file.open("scheduler.perf",fstream::out);
 
